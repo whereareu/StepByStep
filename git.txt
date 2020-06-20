@@ -1,1 +1,14 @@
-ECHO 处于打开状态。
+1、Enter the cloned direcotry
+cd D:\Users
+cd Leo
+cd StepByStep
+
+2、Clone github repository
+git clone https://github.com/whereareu/StepByStep.git
+copy .git file and other files into StepByStep directory
+
+3、Commit and Push
+git add .
+git commit -m "First Commit"
+git push origin master
+
