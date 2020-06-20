@@ -1,0 +1,10 @@
+1、move C:\Users\L  C:\Users\Leo
+Moving L file to Leo file. It can not move diffrent driver.
+2、md Pictures
+Making Directory in the current directory.
+3、rd Pictures
+Removing Directory in the current directory.
+4、echo> cmd.txt
+Making cmd.txt in the current directory.
+5、start cmd.txt
+Starting  cmd.txt int the current directory.
