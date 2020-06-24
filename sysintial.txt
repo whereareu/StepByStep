@@ -1,0 +1,16 @@
+1、Expanding c drive
+Excuting diskmgmt(cmd) 
+Delting volume(d drive or other drive)
+Expanding volume(c drive)
+New volume(d drive or other)
+
+2、Creating a system restore point
+Excuting sysdm.cpl(cmd)
+Creating Button(system protection fragment)
+Naming restore point and creating
+
+3、Creating a system image backup
+Control panel
+System and security
+Bakup and Restore
+Create a system image
