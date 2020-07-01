@@ -1,0 +1,17 @@
+Out of Memory(OOM) Error
+Out of memory error is very common error when you are developing for a application that deals with multiple images sets or large bitmaps or some Animation stuff. In this case we have to be very careful efficient while handing the images or object allocation and deallocation. OOM error comes when the allocation crosses the heap limit or your process demand a amount of memory htat crosses the heap limit.
+In Android, every application runs in a Linux Process. Each Linux Process has a Virtual Machine(Dalvik Virtual Machine) running inside it. There is a limit on the memory a process can demand and it different for different devices and also differs for phones and tablets. When some process demands a higher memory than its limit it causes error i.e Out of memory.
+
+Possible Reasons
+There are number of reasons why we get a Out of memory errors. Some of those are:
+1 You are doing some operation that continuously demands a lot of memory and at some point it goes beyoud the max heap memory limit of a process.
+2 You are leaking some memory i.e you did'nt make the previous objects you allocated eligible for Garbage Collection(GC). This is called Memory leak.
+3 You are dealing with large bitmaps and loading all of them at run time. You have to deal very carefully with large bitmaps by loading the size that you need not the whole bitmap at once and then do scaling.
+
+Best practices to avoid memory leaks or OOM
+Do not keep long-lived references to Context/Activity(a reference to an Activity should have the same life cycle as the activity itself)
+Try using the context of application instead of a context of activity.
+If you are using a large bitmap as background or something in your application than don't pull the image in to the main memory. You can use the insample size property of bitmap to bring the size your screen needs.
+Memory fragmentation: You should plan the allocation of the variables so that after deallocation the memory should not be scattered or fragmented. If 10 MB memory is available in chunks and process requests for 2 MB and couldn¡¯t find a chunk of 2 MB then it will ask for more heap and this in turn can cause OOM.
+Sending large files to server should be done in chunks because loading a large image in bytes can cause OOM.
+A activity that is using so many images should remove the callbacks to the drawable used by calling setCallBack(null) on the drawable to avoid OOM. 

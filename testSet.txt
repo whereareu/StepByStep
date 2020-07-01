@@ -1,0 +1,13 @@
+1 java虚拟机和Davilk虚拟机区别
+java虚拟机是基于栈
+.jav--.class--jvm虚拟机
+Davilk是基于寄存器
+.java--.class--.dex文件--Davilk可执行文件
+
+2 activity的启动模式和使用场景
+standard 
+<activity android:launchMode=”standard” />  标准模式 默认模型
+
+singleTop 栈顶复用 登录界面
+singleTask 栈内单例模式 应用程序主界面
+singleInstance 单一实例模式 拨打电话界面

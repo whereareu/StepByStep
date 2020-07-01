@@ -1,0 +1,84 @@
+Activity
+Tasks
+A task is a collection of activities that users interact with when performing a certain job. In general an application contains number of activities. Normally when user launch an application a new task will be created and the first instance is called root of the task.
+When user lanches an app from home icon, it navigates through different screens so different activities placed on the top of one another. This collection of acitivtites is known as tasks.
+
+Back Stack
+Activities are arranged with the order in which each activity is opend. This maintained stack called Back Stack. When you start a new activity using startActivity(), it pushes anew acitivity onto your task, and put the previous Activity in the back stack.
+Once you press back button then "pops" most activty and remove it from the back stack and taking you back to the previous activity.
+
+<activity android:launchMode = [¡°standard¡± | ¡°singleTop¡± | ¡°singleTask¡± | ¡°singleInstance¡±] ../>
+
+1 Standard
+This is the default launch mode of an activity(if not specified). It creates a new instance of an activity in the task from which it was started.
+Multiple instances of the activity can be created and multiple instances can be added to be the same or different tasks. 
+Suppose you have A B C D activities and your activity B has "launch mode = stardard". Now you again launching activity B
+State of Activity Stackk before launch B
+A-B-C-D
+State of Activity Stack after launch B
+A-B-C-D-B
+
+2 SingleTop
+In this launch mode if an instance of activity already exists at the top of the current task, a new instance will not be created and Android system will route the intent information through onNewIntent(). If an instance is not present on top of task then new instance will be created.
+Using this launch mode you can create multiple instance of the same activity in the same task or in different tasks only if the same instance does not already exist at the top of stack.
+Suppose you have A, B and C activities and your activity D has ¡°launch mode = singleTop¡±. Now you launching activity D -
+State of Activity Stack before launch D
+A -> B -> C
+State of Activity Stack after launch D activity
+A -> B -> C -> D (Here D launch as usual)
+Suppose you have A, B, C and D activities and your activity D has ¡°launch mode = singleTop¡±. Now you again launching activity D -
+State of Activity Stack before launch D
+A -> B -> C -> D
+State of Activity Stack after launch D activity
+A -> B -> C -> D (Here old instance gets called and intent data route through onNewIntent() callback)
+
+3 SingleTask
+In this launch mode a new task will always be created and a new instance will be pushed to the task as the root one. If an instance of activity exists on the separate task, a new instance will not be created and Android system routes the intent information through onNewIntent() method. At a time only one instance of activity will exist.
+Suppose you have A B and C activities and your activity D has "launch mode = singleTask". Now you launching activity D-
+State of Activity Stack before launch D
+A -> B -> C
+State of Activity Stack after launch D activity
+A -> B -> C -> D (Here D launch as usual)
+Suppose you have A, B, C and D activities and your activity B has ¡°launch mode = singleTask¡±. Now you again launching activity B-
+State of Activity Stack before launch D
+A -> B -> C -> D
+State of Activity Stack after launch B activity
+A -> B (Here old instance gets called and intent data route through onNewIntent() callback) C and D activities get destroyed here.
+
+4 singleInstance
+This is very special launch mode and only used in the applications that only one activity. It is similar to singleTask except that no other activities will be created in the same task. Any other activity started from here will create in a new task.
+Suppose you have A B and C activities and your activity D has launch mode = singleInstance. Now you launching activity D-
+State of Activity Stack before launch D-
+A -> B -> C
+State of Activity Stack after launch D activity
+Task1 ¡ª A -> B -> C
+Task2 ¡ª D (here D will be in different task)
+Now if you continue this and start E and D then Stack will look like-
+Task1 ¡ª A -> B -> C -> E
+Task2 ¡ª D
+
+Suppose you have A B C activities in one task and activity D is in another task with "launch mode = singleInstance". Now you again launching activity D-
+Task1 ¡ª A -> B -> C
+Task2 ¡ª 
+State of Activity Stack after launch B activity
+Task1 ¡ª A -> B -> C
+Task2 ¡ª D (Here old instance gets called and intent data route through onNewIntent() callback)
+
+
+Intent Flags
+Android also provides Activity flags by which you can change the default behavior of Activity association with Tasks while starting it via startActivity method. These flags values can be pass through Intent extra data.
+
+FLAG_ACTIVITY_NEW_TASK
+This flag works similar to ¡°launchMode = singleTask¡±.
+
+FLAG_ACTIVITY_CLEAR_TASK
+This flag will cause any existing task that would be associated with the activity to be cleared before activity is started. The activity becomes the new root of an otherwise empty task, and any old activities are finished.
+
+FLAG_ACTIVITY_SINGLE_TOP
+This flag works similar to ¡°launchMode = singleTop¡±.
+
+FLAG_ACTIVITY_CLEAR_TOP
+If set, and the activity being launched is already running in the current task, then instead of launching a new instance of that activity, all of the other actiivties on top of it will be closed and this Intent will be delivered to the old activity as a new Intent.
+
+
+

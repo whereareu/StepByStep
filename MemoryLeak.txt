@@ -1,0 +1,162 @@
+Memory Leak
+Failure of releasing unused objects from the memory. 
+The means there are unused objects in the application that the garbage collector cannot release from memory. So the memory unit is occupied until the end of the application/method.
+
+What's Heap & Stack
+Stack: ordered, on top of eachother
+Heap: No particular order
+
+How we can cause a leak?
+There are various ways to cause a memory leak in Android.  Every app has a global application context(getApplicationConntext()). Every actvity is a subclass of Context, which stores information related to the current actiivty. More often than not, your memory leak will be associated with a leaked activity.
+And it can be made easily using AsyncTasks, Handlers, Singleton Classes, Threads, and more.
+	1 How can we cause a leak using thread?
+As we know inner classes hold an implicit reference to their enclosing class, it will generate a construtor automatically and passes the activity as a reference to it.
+public class ThreadActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_async_task);
+
+        new DownloadTask(this).start();
+    }
+    
+    private class DownloadTask extends Thread {
+        
+        Activity activity;
+        
+        public DownloadTask(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void run() {
+            SystemClock.sleep(2000 * 10);
+        }
+    }
+}
+So what happens when the thread starts?
+Stack: 	
+run()
+onCreate() DownloadTask task
+main() ThreadActivity activity
+Heap:	
+new ThreadActivity()
+new DownloadTask()
+
+In a normal case, the user opens the activity wait 20sec until the download task is done.
+Stack:
+run() 
+main() ThreadActivity activity
+Heap:	
+new ThreadActivity() 
+new DownloadTask()
+
+Then the next time the garbage collector works he will relase the obect from the heap.
+Stack:	
+main() ThreadActivity activity
+Heap:	
+new ThreadActivity()
+
+And when the user closes the activity the main method will be released from the stack and the ThreadActivity also reclaimed from the heap and everything works as needed without leask.
+Stack:nothing
+Heap:nothing
+
+In a case that the user closes/rotate the activity after 10sec.
+Stack: run()
+Heap:
+new ThreadActivity() (X)
+new DownloadTask()
+The task is still working that means the reference for the activity still alive and BOOM we have a memory leak.
+When the download run() task is done the stack release the objects. so when the garbage collector works next time the object will be reclaimed from the heap because there is no object referenced on it.
+
+The WeakReference allows the Activity to be garbage collected. Garbage collected does not the weak reference from begin reclaimed.
+
+	2 How we can cause a leak using singleton
+Let's task an example of a singleton who need context in order to do something such as getting a resource or using shared preference...etc
+
+public class SingletonManager {
+
+    private static SingletonManager singleton;
+    private Context context;
+
+    private SingletonManager(Context context) {
+        this.context = context;
+    }
+
+    public synchronized static SingletonManager getInstance(Context context) {
+        if (singleton == null) {
+            singleton = new SingletonManager(context);
+        }
+        return singleton;
+    }
+
+When the memory leak could happen?
+When you initialize the singleton from an activity, you will pass a long-lived context-activity to a singleton.
+
+public class LoginActivity extends Activity {
+      @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        //...
+        SingletonManager.getInstance(this);
+    }
+}
+
+Then the singleton will hold the activity until the end of the application.
+PermGen: SingletonManager singleton
+Heap: new SingletonManager new LoginActivity()(X)
+
+What is permGen?
+PermGen is an abbreviation for Permanent Generation and it's a special heap space which is separate from the main Java heap. static methods and static variables are stored in the PerGen section of the heap. only primitives and references are stored in the PermGen the value is stored in another part of the heap(young/old generation).
+
+How to avoid singleton leak?
+Avoiding this leak by passing application-context instead of activity-contenxt.
+Or you can update your singleton class to use the application conext when creating the object instead of passing it from outside.
+public class SingletonManager {
+   // ....
+    public synchronized static SingletonManager getInstance(Context context) {
+        if (singleton == null) {
+            singleton = new SingletonManager(context.getApplicationContext());
+        }
+        return singleton;
+    }
+}
+
+	3 How to cause a leak using listeners
+The listener or observer pattern is the most common strategy for creating callbacks within Android development and there are many situations where you register a listener in your activity or fragment for a singleton object or an x-manager but forget to unregister it. This can esasily lead to a memory leak when you pass your activity as a listener, make sure you understand what the other object does with the activity instance.
+
+public class LoginActivity extends Activity implements LocationListener {
+
+  @Override
+  public void onLocationUpdated(Location location){
+  // do something
+  }
+  
+  @Override
+  protected void onStart(){
+    LocationManager.getInstance().register(this);
+  }
+  
+  @Override
+  protected void onStop(){
+    LocationManager.getInstance().unregister(this);
+  }
+
+}
+
+In the example above, we register the activity to listen for the location updates, if we forgot to unregister the activity from the LocationManager and it's time for your activity to die, the Android framework will call onDestroy() on it, but the garbage collector will not be able to remove the instance from memory because the LocationManager is still holding a strong reference to it(because activity implement LocationListener).
+
+How to avoid this kind of leaks?
+Make sure to unregister all your listeners in onDestroy/onStop methods.
+protected void onDestroy() {
+    unregisterReceivers();
+    LocationManager.getInstance().unregister(this);  
+    AppState.getInstance().setStateChangeListener(null);
+    LocalBroadcastManager.getInstance(getApplicationContext())
+        .unregisterReceiver(messageReciver);
+    super.onDestroy();
+}
+
+
+Why we should care about memory leak?
+Leads can lead to ANR error(Application Not Responding), lags in the app and OutOfMemory exceptions(Crash) that ultimately leads to uninstallation of your app by users.

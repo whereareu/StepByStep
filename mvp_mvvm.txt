@@ -1,0 +1,12 @@
+MVP
+VIEW-><-PRESENTER-><-MODEL
+
+MVVM
+VIEW<-VIEWMODEL-><-MODEL
+
+Tight Coupling
+For each Activity/Fragment(View) we require a Presenter. This is a hard bound rule. Presenter holds the reference to the Activity and Activity Holds the reference to presenter. 1:1 relationship and thats where the biggest issue lies.
+As the complexity of view increases, so does the maintenance and handling of this relationship
+This eventually lead to same issue we faces earlier as in for quick chages in design, we actually need to modify the whole relationship.
+Picking a statement from our end goal "Build things in a distributed manner". In order to achieve it and to avoid this tight relationship ViewModels were introduced.
+ViewModels are simples classes that interacts 
