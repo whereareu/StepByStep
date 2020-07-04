@@ -1,12 +1,53 @@
 MVP
 VIEW-><-PRESENTER-><-MODEL
 
+The MVP pattern separates the data model, from a view through a presenter.
+Model has the interface implemented by Presenter, and Presenter has the interface implemented by View.  Then after the Model data request is completed, the interface is called to notify the Presenter, and the Presenter then calls the interface to notify the View to refresh the UI.
+View has an instance of Presenter, and the Presenter has an instance of Model.  When the user interacts with the UI of the View, the method of the Presenter instance is called, and then the method of the Model instance is called to request data. 
+Presenter should have a callable interface instantiated by View and have an instance of Model and an interface defined by Model.
+
+View
+It contains only the UI and it does not contain any logic or konwledge of the data displayed. In typical implementations the view components in MVP exports an interface that is used by the Presenter. The presenter uses there interface methods to manipulate the view. Example method names would be : showProgessBar, updateData
+
+Presenter
+The presenter triggers the business logic and tells the view when to update. It therefore interacts with the model and fetches and transforms data from the model to update the view.  The presenter should not have, if possible, a dependency to the Android SDK.
+
+Model
+Contains a data provider and the code to fetch and update the data. This part of MVP updates the database or communicate with a webserver.
+
 MVVM
 VIEW<-VIEWMODEL-><-MODEL
+MVVM seems very similar to the MVP，because both of them do a great job in abstracting the view's state and behavior. The Presentation Model abstracts a View independent from a specific user-interface platform, whereas the MVVM pattern was created to simplify the event driven programming of user interfaces.
+
+If the MVP meant that the Presenter was telling the View directly what to display, in MVVM, ViewModel exposes streams of events to which the Views can bind to. Like this, the ViewModel does not need to hold a reference to the View anymore, like the Presenter is. This also means that all the interfaces that the MVP pattern requires, are now dropped.
+
+The Views also notify the ViewModel about different actions. Thus, the MVVM supports two-way  data binding between the View and ViewModel and there is a many-to-one relationship between View and ViewModel. View has a reference to ViewModel but ViewModel has no information about the View. The consumer of the data should know about the producer, but the producer-the ViewModel-doesn''t know, and doesn't care, who consumes the data.
+
+Model
+The model layer of MVVM is similar to the model layer of the MVP arichitecture as this layer also consists of data that acts as a gateway to the business logic. The model is also known to comprise data along with the tools of data processing. Some even refer to this layer as the brain of the application. 
+
+ViewModel
+exposes streams of data relevant to the View.
+
+View
+The view layer which is responsible for the function of data visualization in the MVVM architecture ties to multiple variables as well as actions in a flexible way. This layer also transmits the values into the ViewModel, and this conntrubutes to changing the UI view.
 
 Tight Coupling
 For each Activity/Fragment(View) we require a Presenter. This is a hard bound rule. Presenter holds the reference to the Activity and Activity Holds the reference to presenter. 1:1 relationship and thats where the biggest issue lies.
-As the complexity of view increases, so does the maintenance and handling of this relationship
+As the complexity of view increases, so does the maintenance and handling of this relationship.
 This eventually lead to same issue we faces earlier as in for quick chages in design, we actually need to modify the whole relationship.
 Picking a statement from our end goal "Build things in a distributed manner". In order to achieve it and to avoid this tight relationship ViewModels were introduced.
-ViewModels are simples classes that interacts 
+
+ViewModels are simples classes that interacts with the logic/model layer and just exposes states/data and actually has no idea by whom or how that data with be consumed. Only View(Activity) holds the reference to ViewModel and not vice versa,  this solves our tight coupling issue.  A single view can hold reference to multiple ViewModels.
+Even for complex views we can actually have difference ViewModels within same hierarchy.
+
+Testability
+Since Presenters are hard bound to Views, writing unit test becomes slightly difficult as there is a dependency of a View.
+
+ViewModels are even more Unit Test friendly as they just expose the state and hence can be independently tested without requiring the need for testing how data willl be consumed,  In short there is no dependency of the View.
+
+Quick compare 
+The main difference in both architectural patterns is the missing arrow -the ViewModle does not hold the reference to the View. In MVP, the role of a Presenter is not drive the View changes and at the same time provide data for completing those operations. In MVVM, the ViewModel only provides the data, whereas the View is responsible for consuming them.
+Even if the View gets to decide how to handle data, that does not mean it needs to contain comlicated logic. The idea is that ViewModel provides data in a form that View simply takes and display -no manipultion required. The ViewModel can also hold logic for processing users input, same as the Presenter, but the result need to be "picked up" by the View.
+
+

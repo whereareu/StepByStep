@@ -1,0 +1,40 @@
+Clean Architecture
+The layers are the main core of a clean architecture. In our app, we will use three layers:
+presentation, domain, and model. Each layer should be separated and should't need to konw about other layers. It should exist in its own world and, at most, share a small interface to communicate.
+
+Domain:
+Contains the business rules of our app. It should provide use cases which reflect the features of our app.
+Presentation:
+Presnets data to the user and also cllects necessary data like the username. This is kind of input/output.
+Model:
+Provides data for our app. It is responsible for obtaining data from external sources and save them to the database, cloud server, etc.
+
+Which layers should konw about the others? The simplest way to get the answer is thinking aout changes. Let's take the presentation layer-we will present something to the user. If we change something in presentation, should we also make a change in a model layer? Imagine we have a "User" screen with the user's name and last location. If we want to present the user's last two locations instead of only one, our model should not be affected. So we have the first principle :The presentation layer does not konw about the model layer.
+
+And, the opposite-should the model layer know about presentation layer? Again-no, because if we change, e.g, the source of data from database to a network, it should not change anything in the UI(if you thought about adding a loader here-yes, but we can also have a UI loader when using a database). So the two layer are completely separate. Great!
+
+What about the domain layer? It is the most important one because it contain all the main business logic. This is where we want to process our data before passing it to the model layer or presenting it to the user. It should be independent of any other layer-it does not know anything about the databse, the network, or the user interface. As this is the core, other layers will communicate only with this one. why do we want to have this completely independent? Business rules will probably change less often than the UI designs or something in the database or the network storage. We will communicate with this layer via some provided interfaces. It does not use any concrete model or UI implementation. These are details, and remember-details change. A good architecture is not bound to details.
+
+
+MVVM is an arhictectural pattern in programing. The main task of the pattern is to separate presentation logic from business logic. The most immportant component in MVVM is the ViewModel, which behaves more like a model and less like a View.  It is responsible for connverting and delegating data objects to presentation logic that displays those to the user on the device screen. It is for the reasons above that we can say that this pattern is event-driven because of every View reaction. ViewModel does certain actions.
+
+The fact is that architecture is important in the developement of any software project because unless you choose the right architecture at the begainning, you will later have major problems maintaining how existing requirements change or new ones come and how those people on the project expand. It is also important not to spend too much time developing the architecture because if your application has poor UI/UXA, no architecture will save it. You need to find a balance between these two concepts in order for a project to be sustainable and successful.
+
+As Google introduced the Android Architecture Components libarary whose navigationn component I taked about in a previous post, MVVM has emerged as the best architectural choice since ViewModel is part of that library and is form-compativle by default. Other reasons are because ViewModel supports Android DataBinding and has much larger lifecycle scope and can survive configuration changes.
+
+To get Clean approach in the MVVM architecture on Android, we need to add another layer between the ViewModel and Model we specificlly call the Domain layer(UseCases). The domain is in charge of implementing the business logic, rules, and requirements prescribed by the functional specification in the development of the project. Like everything in life, Clean MVVM has its advantages and disadvantages. I have listed some of them below:
+Advantages
+Higher testability of program code than regular MVVM
+The biggest advantage is that the code is even more separated into sparate entities
+Navigating throung project packages is easier and more intuitive
+Light sustainability of the whole project
+Adding new features is much easier.
+It takes time to learn how layers work together
+Creating additional classes
+Not suitable for some less complex projects. But even in such projects, it is not a stretch to use Clean Code.
+
+
+
+
+
+
