@@ -1,0 +1,195 @@
+Scoped Functions
+
+By definition, Scoped functions are functions that execute a block of code within the context of an object.
+
+Well, what does this mean? These functions provide a way to give temporary scope to the object under consideration where speccific operations can be applied to the object within the block of code, therby, resulting in a clean and concise code. Ont clear sitll right? Yeah. In Software  Development, things are only better understood by implementing rather than reading.
+
+class Person() {
+    var name: String = "Abcd"
+    var contactNumber: String = "1234567890"
+    var address: String = "xyz"
+   fun displayInfo()  = print("\n Name: $name\n " +
+            "Contact Number: $contactNumber\n " +
+            "Address: $address")
+    
+}
+
+let
+
+private fun performLetOperation() {
+    val person = Person().let {
+        return@let "The name of the Person is: ${it.name}"
+    }
+    print(person)
+}
+output:
+The name of the Person is: Abcd
+
+From the above code snippet, we can see that although "let" operation is performed on a Person object, the output of the code is a string value and not the Person object. The implies that the "let" operator provides an optionn to perform an operation on the current object and return any value based on the use case.
+
+Note: It is not necessary to write “return@let”. This is only done to enhance code readability. In Kotlin, if the last statement in a “let” block is a non-assignment statement, it is by default a return statement. For example:
+
+private fun performLetOperation() {
+    val person = Person().let {
+        "The name of the Person is: ${it.name}"
+    }
+    print(person)
+}
+output:
+The name of the Person is: Abcd
+
+private fun performLetOperation() {
+    val person = Person().let {
+        it.name = "NewName"
+    }
+    print(person)
+}
+output:
+kotlin.Unit
+
+We can see that since there was no return value in the let block and hence printing the same would indicate that the "print" functionality is called upon a unit function.
+
+There are other advantages of using let:
+
+It refers to the context of the object by using the "it" keyword and hence, this "it" can renamed to readable lambda parameter.
+
+private fun performLetOperation() {
+    val person = Person().let { personDetails ->
+        personDetails.name = "NewName"
+    }
+    print(person)
+}
+
+The second advantage is it easily helps in providing null checks. Let's say we make the "name" parameter of the "Person" class nullable and we want to print the name of the person only if it is a not null value.
+
+var name: String? = "Abcd"
+private fun performLetOperation() {
+    val name = Person().name?.let {
+        "The name of the Person is: $it"
+    }
+    print(name)
+}
+
+"let" can be also be used when we want to perform an operation on the result of a call chain.
+
+fun main() { 
+    val numbers = mutableListOf("One","Two","Three","Four","Five")
+    val resultsList = numbers.map { it.length }.filter { it > 3 }
+    print(resultsList)
+}
+
+So our aim is to fetch the values in the ArrayList whose length is greater than 3. Since we had to print the result we stored the result in a sparate variable and then printed it. But using "let" operator, we can modify the code as:
+
+fun main() {
+    val numbers = mutableListOf("One","Two","Three","Four","Five")
+    numbers.map { it.length }.filter { it > 3 }.let {
+        print(it)
+    }
+}
+
+run
+
+The “run” operator is similar to the “let” operator in terms of accepting a return value that is different from the object on which the scope function is being applied to. Hence, a “run” operator can be used to initialize an object and return the result of it.
+
+private fun performRunOperation() {
+    Person().run {
+        name = "Asdf"
+        contactNumber = "0987654321"
+        return@run "The details of the Person is: ${displayInfo()}"
+    }
+}
+output:
+ Name: Asdf
+ Contact Number: 0987654321
+ Address: xyz
+
+run vs let
+
+So if run is similar to let in terms of accepting any return value, what’s the difference? The difference is run refers to the context of the object as “this” and not “it”. That is the reason we did not use “${this.name}” as it would be redundant here since the block of code understands that “name” is used here concerning the Person object.
+
+One point here is that since the context is referred to as “this”, it cannot be renamed to a readable lambda parameter. So depending on the use case and requirement we have to choose between the let and the run operator. The “run” operator also helps in easy null checks similar to the “let” operator
+
+with
+
+The “with” operator is completely similar to the run operator that we just discussed. It also refers to the context of the object as “this”, similar to how the “run” operator uses it.
+
+with vs run
+
+private fun performWithOperation() {
+    val person: Person? = null
+    with(person) {
+        this?.name = "asdf"
+        this?.contactNumber = "1234"
+        this?.address = "wasd"
+        this?.displayInfo()
+    }
+}
+
+So performing a null check using a “with” operator is difficult and this is where we can replace it with “run” as follows:
+
+private fun performRunOperation() {
+    val person: Person? = null
+    person?.run {
+        name = "asdf"
+        contactNumber = "1234"
+        address = "wasd"
+        displayInfo()
+    }
+}
+
+apply
+
+The apply function is similar to the run functionality only in terms of referring to the context of the object as “this” and not “it” and also in providing null safety checks:
+
+private fun performApplyOperation() {
+    val person: Person? = null
+    person?.apply {
+        name = "asdf"
+        contactNumber = "1234"
+        address = "wasd"
+        displayInfo()
+    }
+}
+
+apply vs run
+
+We can see that run accepts a return statement whereas “apply” does not accept a return statement(we can see the error thrown by the IDE in the image) and always returns the same object which it is referring to.
+
+also
+
+The “also” function is similar to the let functionality only in terms of referring to the context of the object as “it” and not “this” and also in providing null safety checks:
+
+private fun performAlsoOperation() {
+    val name = Person().also { currentPerson ->
+        print("Current name is: ${currentPerson.name}\n")
+        currentPerson.name = "modifiedName"
+    }.run {
+        "Modified name is: $name\n"
+    }
+    print(name)
+}
+output:
+Current name is: Abcd
+Modified name is: modifiedName
+
+Here we can see the usage of the readable lambda parameters, similar to what  we have seen in the "let" operator case. The adavantage of using "also" operator case. The advantage of using "also" operator is that while doing a chain of operations, this operator helps in eveluating the current operating value if required.
+
+also vs let
+
+We can see that let accepts a return statement whereas "also" does not accept a return statement(we can see the error thrown by the IDE in the image) and always returns the same object which it  is referring to.
+
+		it	this
+
+Returns result	let	run, with
+
+Returns object	also	apply
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,200 @@
+Dependency and Injection
+
+Dependency means to depend and Injection means to inject something into something else. Easy then when you combine both it becomes Dependency Injection meaning that you can inject dependencites.
+
+Body----------->Blood
+		^
+       _________________|________________
+      |	      |	       |	         |	
+A_Blood	B_Blood	AB_Blood   O_Blood
+
+In the diagram, we have a class Body that denpends on a class Blood. Just like real life, Body will have Blood as a member indide of its class (Body depends on Blood). In addition, we can inject the blood into the body using an injection. Of course we could create a factory inside Body to create Blood but this would create boilerplate ocde. It is better if we just inject it throug a dependency injection framework, that is where Dagger2 comes in.
+
+Dagger and dependencies
+
+Dagger is dependency injection framework for Android, and here we see how to use and configure it.
+
+Dagger injects the class using the annotation @inject, it can be used in a constructor:
+
+public class Body {
+  
+    @Inject
+    public Body(){}
+
+}
+
+In this way, Dagger injects the Body class into another class when needed by Injection. For example
+
+public class Person{
+
+  Body body;
+  
+  @Inject
+  public Person(Body body){
+    this.body = body;
+  }
+  
+}
+
+Since Body is not a singleton, what dagger does it to create a new Body object every time that a Person is created by Dagger.  Of course every person has a different body so this is okay.
+
+Now let's inject Blood into the Body, all Bodies have blood:
+
+public class Body {
+
+    @Inject
+    Blood blood;
+
+
+    @Inject
+    public Body(){}
+
+    public Blood getBlood() {
+        return blood;
+    }
+
+    public void setBlood(Blood blood) {
+        this.blood = blood;
+    }
+}
+
+And now let's create the class for Blood:
+
+public abstract class Blood {
+
+    public abstract String getKindOfBlood();
+
+}
+
+This one is an abstract class and its subclass extends Blood ad gets the type of blood as a string:
+
+Okay, you may think, good we have everything set, the Blood will be injected into the Body, but...how? We hve 4 types of Blood: A, B, AB and O. Blood is just an interface, how does Dagger know which Blood to inject? The answer is that it doesn't know, this will not work; we need some kind of injection module that injects the blood type we need. Therefore to sovle this problem, Dagger introduced a new concept; The Module.
+
+Dagger Modules
+
+A module is a class that injects concete classes for an interface. It allows different modules to inject different kinds of concete implementations into our code. In addition, we can plug-out and plug-in different modules by code. In our case, we use a module called RandomInjectionModule that injects random Blood into the Body(it sounds scary but it is just a programming example, nobody will die!). Notice that we don't need a module if we don't need to inject an interface.
+
+Let's implement a module, we will use the @module in a class and @provider in a method, it's best paractice to suffix the class with Module and the method will prefix; Provider, as show here:
+
+@Module
+public class RandomInjectionModule {
+
+    private static Blood blood;
+
+    public RandomInjectionModule() {
+    }
+
+    @Provides
+    static Blood provideBlood(){
+
+        if(blood != null) {
+            return blood;
+        }
+
+        Random rnd = new Random();
+        int rndNumber = rnd.nextInt(3);
+
+        switch (rndNumber){
+            case 0: blood = new A_Blood(); break;
+            case 1: blood = new B_Blood(); break;
+            case 2: blood = new AB_Blood(); break;
+            case 4: blood = new O_Blood(); break;
+            default: blood = new A_Blood();
+        }
+
+        return blood;
+    }
+}
+
+As you can see, a Blood instance is returned as a concrete class. In face, it will always return the same instance since it was marked as static.
+
+Now we need to use the module in our code. To do that, Dagger introduces another new concept: Component.
+
+Dagger Components
+
+A component is an interface which specifies what modules to use and what objects to return for our code. For example; we are in our main method in Java and we have a Doctor component that uses the random injection module to inject blood:
+
+@Component( modules = RandomInjectionModule.class )
+public interface Doctor {
+    Body injectBlood();
+}
+
+In the above code, we return a Body using the RandomInjectionModule. It means that a Random blood is injected in the Body automatically by the dependency injection framework that we specified using the @injection in Body. If we returned a Person using the RandomInjectionModule then a Random blood and Body will be injected as well.
+
+Now let's use our Component in our code. Dagger2 generates a class with the same name as our class. prefixed with 'Dagger' when our project is compiled. In our case, it's called DaggerDoctor and it has different methods to set different instances of our modules. As in our casse all dependecies can be constructed without the user creating a dependency instance, the DaggerDoctor component has a create() method that instantiates our module and module an injects our classes automatically:
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Body body = createBody();
+
+        TextView bloodTV = findViewById(R.id.blood_tv);
+
+        bloodTV.setText("Kind of Blood: " + body.getBlood().getKindOfBlood());
+    }
+
+    private Body createBody() {
+        Doctor doctor = DaggerDoctor.create();
+        return doctor.injectBlood();
+    }
+}
+
+
+Dagger Scopes
+
+If your login flow (managed by a single LoginActivity) consists of multiple fragments, you should reuse the same instance of LoginViewModel in all fragments. @Singleton cannot annotate LoginViewModel to reuse the instance for the following reasons:
+
+The instance of LoginViewModel would persistent in memory after the flow has finished.
+
+You want a different instance of LoginViewModel for each login flow. For example, if the user logs out, you want a different instance of LoginViewModel, rather than the same instance as when the user logged in for the first time.
+
+To scope LoginViewModel to the lifecycle of LoginActivity you need to create a new component (a new subgraph) for the login flow and a new scope.
+
+Let's create a graph specific to the login flow.
+
+@Component
+interface LoginComponent {}
+
+Now, LoginActivity should get injections from LoginComponent because it has a login-specific configuration. This removes the responsibility to inject LoginActivity from the ApplicationComponent class. 
+
+@Component
+interface LoginComponent {
+    fun inject(activity: LoginActivity)
+}
+
+LoginComponent must be able to access the objects from ApplicationComponent because LoginViewModel depends on UserRepository. The way to tell Dagger that you want a new component to use part of another component is with Dagger subcomponents. The new component must be a subcomponent of the component containing shared resources.
+
+Subcomponents are components that inherit and extend the object graph of a parent component. Thus, all objects provided in the parent component are provided in the subcomponent too. In this way, an object from a subcomponent can depend on an object provided by the parent component. 
+
+To create instance of subcomponents, you need an instance of the parent component. Therefore, the objects provided by the parent component to the subcomponent are still scoped to the parent component. 
+
+In the example, you must define LoginComponent as a subcomponent of ApplicationComponent. To do this, annotate LoginComponent with @Subcomponent:
+
+// @Subcomponent annotation informs Dagger this interface is a Dagger Subcomponent
+@Subcomponent
+interface LoginComponent {
+    // This tells Dagger that LoginActivity requests injection from LoginComponent
+    // so that this subcomponent graph needs to satisfy all the dependencies of the
+    // fields that LoginActivity is injecting
+    fun inject(loginActivity: LoginActivity)
+}
+
+And a plus method in ApplicationComponent, to indicate that this component can be added subcomponents of that type:
+
+@Singleton
+@Component(modules = [NetworkModule::class])
+interface ApplicationComponent {
+   ...
+   fun plus() LoginComponent
+}
+
+
+
+
+
+
+

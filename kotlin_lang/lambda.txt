@@ -1,0 +1,58 @@
+Lambda Expressions
+
+Lambda expression or simply lambda is an anoymous function： a function without name. There functions are passed immediately as an expression without declaration.
+fun mian(args: Array<String>) {
+	val greeting = {println("Hello!")}
+	greeting()
+}
+
+Hello!
+
+Here, a lambda expression is assigned to variable greeting. The expression doesn't accept any parameters and doesn't return any value in this program.
+
+fun main(args: Array<String>) {
+    val product = { a: Int, b: Int -> a * b }
+    val result = product(9, 3)
+    println(result)
+}
+
+27
+
+Here, the lambda expression is:
+{a: Int, b: Int -> a*b}
+
+Note, a lambda expression is enclosed inside curly braces.
+
+Lambdas are frequently used while working with collections. And, there are several built-in functions available in standard-library that take lambdas to make our task way easier.
+The maxBy() function returns the first element yielding the largest value of the given function or null if there are no elements.
+
+data class Person(val name: String, val age: Int)
+
+fun main(args: Array<String>) {
+
+    val people = listOf(
+            Person("Jack", 34),
+            Person("Shelly", 19),
+            Person("Patrick", 13),
+            Person("Jill", 12),
+            Person("Shane", 22),
+            Person("Joe", 18)
+            )
+
+    val selectedPerson = people.maxBy({ person ->  person.age })
+
+    println(selectedPerson)
+    println("name: ${selectedPerson?.name}" )
+    println("age: ${selectedPerson?.age}" )
+}
+
+Person(name=Jack, age=34)
+name: Jack
+age: 34
+
+Here, the lambda expression accepts only one parameter(a list of Person objects). In such cases, you can refer the argument by using keyword it.
+
+You can replace
+val selectedPerson = people.maxBy({ person -> person.age })
+with
+val selectedPerson = people.maxBy({ it.age })

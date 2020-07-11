@@ -1,0 +1,20 @@
+SSH
+
+Creating an SSH Key on Windows
+
+Open a command prompt, and run:
+cd %userprofile%/.ssh
+
+If you see "No such file or directory", then there aren't any existing keys:
+1 Log in to your local computer as an adminstrator
+2 In a command prompt, run:
+ssh-keygen -t rsa -C "your_email@example.com"
+Associating the key with your email address helps you to identify the key later on.
+Note that the ssh-keygen command is only available if you have already installed Git (with Git Bash).
+3 Just press <Enter> to accept the default location and file name. If the .ssh directory doesn't exist, the system creates one for you.
+4 Enter, and re-enter, a passphrase when prompted. 
+5 You're done! Now go to either SSH user keys for personal use or SSH access keys for system use.
+
+
+
+

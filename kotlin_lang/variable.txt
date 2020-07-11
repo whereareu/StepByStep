@@ -1,0 +1,106 @@
+Var
+
+var, Kotlin's keyword representing mutable, non-final variables. Once initialized, we're free to  mutate/change the data held by the variable.
+
+var myVariable = 1
+
+Behind the scenes, myVariable initializes with the Int data type.
+
+Although Kotlin uses type interence, which means we also have the option to specify the data type when initialize the variable like below:
+
+var  myVariable : Int = 1
+
+Variables declared as one data type and then initialized with a value of th wrong will return in error:
+
+var myVariable: Int = b //ERROR! as b is different type
+
+Val
+
+val keyword works same as the var keyword, but with one key difference the variable is read-only/nonmutable. The use of val is like declaring a new variable in Java with the final keyword.
+
+For example, in Kotlin:
+val name: String = "Kotlin"
+
+Whereas in Java:
+final String name = "Kotlin";
+
+val variable must be assigned at declaration, or in a Calassconstructor.
+
+class Address(val street: String) {
+val name: String = "Kotlin"
+}
+
+Lateinit
+
+lateinit  means late initialization. If you do not want to initialize a variable in the constructor instead you want to initialize it later on and if you can gurantee the initialization before using it, then declare that variable with lateinit keyword. It will not allocate memory unitl initialized.
+
+private lateinit var myViewModel: MyViewModel
+
+Then initialize somewhere in your MyViewModel class
+myViewModel = MyViewModel()
+
+You cannot use val for lateinit variable as it will be initialized later on. Also you must guarantee that you are initializing the variable before using the variable otherwise it will throw exception at runtime. You cannot use lateinit for priimitive type properties like Int, Long etc.
+
+Accessing a lateinit property before it has been initialized throws a special exception that clearly identified the property being accessed and the fact that  it hasn't been initialized.
+
+Lazy
+
+It means lazy initialization. Your variable will not initialized unless you use that variabe in your code. It will be initialized only once after that we always use the same value.
+
+lazy() is a function that takes a lambda and rerurns an instance of lazy which can serve as delegate for  implementing a lazy property: the first call to get() executes the lambda passed to lazy() and rememberd result, subsequent calls to get() simply return the rememebered result.
+
+val test: String by lazy {
+    val testString = "some value"
+}
+
+Lateinit or Lazy
+
+If variable are mutable(i.e might change at a later stage) use laterinit, it can be initialized from anywhere the object is seem from
+
+lazy can only be used for val properties, whereas lateinit can only be applied to var because it can't be complied to a final field, thus no immutability can be guaranteed.
+
+If its only meant to initialized once and shared by all, and it's more internally set(dependent on variable internal to the class), then use lzay.
+
+Getter
+
+getter are used for getting value of the property. Kotlin internally generates as getter for read-only properties using val. The getter is optional in Kotlin. Property type is optional if it can be inferred from the initializer.
+
+val inferredType = 1 // has type Int and a default getter
+
+If we define a custom getter, it will be called every time we access the property like below:
+
+val updateLiveData : LiveData<Boolean>
+	get() = isUpdateLiveData
+
+Setter
+
+setter are used for setting value of the property. Kotlin internally genertates a default getter and setter for mutable properties using var. Property type is optional if it can be inferred from the initializer.
+
+var initialized = -1 // has type Int, default getter and setter
+
+If we define a custom setter, it will be called every time we assign a value to the property. 
+
+var stringRepresentation: String
+    get() = this.toString()
+    set(value) {
+        setDataFromString(value) 
+// parses the string and assigns values to other properties
+    }
+
+By convention, the name of the setter parameter is value, but you can choose a different name if you perefer.
+
+You can make setter as private so that outsider can't set the value.
+
+var setterVisibility: String = "abc"
+    private set // the setter is private and default implementation
+
+
+
+
+
+
+
+
+
+
+

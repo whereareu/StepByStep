@@ -1,0 +1,69 @@
+Class
+
+#object
+If you need a singleton - a class that only has got one instance - you can declare the class in the usual way, but use the object keyword instead of class:
+ 
+object CarFactory {
+    val cars = mutableListOf<Car>()
+     
+    fun makeCar(horsepowers: Int): Car {
+        val car = Car(horsepowers)
+        cars.add(car)
+        return car
+    }
+}
+There will only ever be one instance of this class, and the instance (which is created the first time it is accessed, in a thread-safe manner) has got the same name as the class:
+ 
+val car = CarFactory.makeCar(150)
+println(CarFactory.cars.size)
+ 
+ 
+#companion object
+If you need a function or a property to be tied to a class rather than to instances of it (similar to @staticmethod in Python), you can declare it inside a companion object:
+class Car(val horsepowers: Int) {
+    companion object Factory {
+        val cars = mutableListOf<Car>()
+ 
+        fun makeCar(horsepowers: Int): Car {
+            val car = Car(horsepowers)
+            cars.add(car)
+            return car
+        }
+The companion object is a singleton, and its members can be accessed directly via the name of the containing class (although you can also insert the name of the companion object if you want to be explicit about accessing the companion object):
+val car = Car.makeCar(150)
+println(Car.Factory.cars.size)
+In spite of this syntactical convenience, the companion object is a proper object on its own, and can have its own supertypes - and you can assign it to a variable and pass it around. If you're integrating with Java code and need a true static member, you can annotate a member inside a companion object with @JvmStatic.
+ 
+ 
+    }
+}
+ 
+#data classes
+We frequently create classes whose main purpose is to hold data. In such a class some standard functionality and utility functions are often mechanically derivable from the data. In Kotlin, this is called a data class and is marked as data:
+data class User(val name: String, val age: Int)
+ 
+On the JVM, if the generated class needs to have a parameterless constructor, default values for all properties have to be specified
+data class User(val name: String = "", val age: Int = 0)
+ 
+Note that the compiler only uses the properties defined inside the primary constructor for the automatically generated functions. To exclude a property from the generated implementations, declare it inside the class body:
+data class Person(val name: String) {
+    var age: Int = 0
+}
+Only the property name will be used inside the toString(), equals(), hashCode(), and copy() implementations, and there will only be one component function component1(). While two Person objects can have different ages, they will be treated as equal.
+val person1 = Person("John")
+val person2 = Person("John")
+person1.age = 10
+person2.age = 20
+ 
+#sealed classes
+Sealed classes are used for representing restricted class hierarchies, when a value can have one of the types from a limited set, but cannot have any other type. They are, in a sense, an extension of enum classes: the set of values for an enum type is also restricted, but each enum constant exists only as a single instance, whereas a subclass of a sealed class can have multiple instances which can contain state.
+ 
+To declare a sealed class, you put the sealed modifier before the name of the class. A sealed class can have subclasses, but all of them must be declared in the same file as the sealed class itself.
+ 
+sealed class Expr
+data class Const(val number: Double) : Expr()
+data class Sum(val e1: Expr, val e2: Expr) : Expr()
+object NotANumber : Expr()
+ 
+A sealed class is abstract by itself, it cannot be instantiated directly and can have abstract members.
+Sealed classes are not allowed to have non-private constructors (their constructors are private by default).

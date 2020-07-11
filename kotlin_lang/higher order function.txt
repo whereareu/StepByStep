@@ -1,0 +1,20 @@
+Higher-Order Function
+
+Kotlin has a great support for functional programming. You can pass functions as arguments to other functions. Also, you can return a function from other functions. There functions are called higher-order functions.
+
+Often, lambda expressios are passed to higher-order function(rather than a typical function) for convenience.
+
+fun callMe(greeting: () -> Unit) {
+	greeting()
+}
+
+fun main(args: Array<String>) {
+	callMe({println("Hello!")})
+}
+
+Hello!
+
+Here, callMe() is a higher-order function(because it takes function as a parameter). The greeting parameter accepts the lambda passed to the callMe() function as:
+greeting: () ->Unit
+
+The empty parenthesis suggest that, the passed anonymous function doesn't accept any parameters. And, the Unit keyword suggest that the anonymous function doesn't return any value.

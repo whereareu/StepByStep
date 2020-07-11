@@ -1,0 +1,114 @@
+Standard Function
+
+let | apply | run | also | with
+
+Kotlin provides a set of standard functions we can use to ease our way with the language and some of the problems we face regularly while programming. 
+All these functions work in a similar way in the same time apply multiple operations on that same variable all in the same place. So, the important thing is to look at the argument(it) the receiver(this) and the result of the function. 
+
+data class SomeObject(
+	var someField: String = "some default value", 
+	var otherField: Int = 55
+	)
+
+    class StandardFunctions {
+
+    fun playground() {
+        var someObject = SomeObject()
+
+        val letExample = someObject?.let { ... }
+
+        val applyExample = someObject.apply { ... }
+
+        val runExample = someObject.run { ... }
+
+        val alsoExample = someObject.also { ... }
+
+        val withExample = with(someObject) { ... }
+    }
+
+    fun someOtherFunction() {
+        print("random message")
+    }
+}
+
+Let
+I believe most of us use let as a null checker to apply or not some operations on an object.
+val letExample = someObject?.let {
+    print(it.someField)
+    this.someOtherFunction()
+    "some result"
+}
+
+Here, by using let we only print someField if someObject is not null, otherwise, nothing inside runs.
+
+Argument(it):The argument in the case of let refers to the object where we're applying the function, in this case, someObject.
+
+Receiver(this):The receiver refers to the class where we're using the function, allowing us to call someOtherFunction() using this keyword.
+
+Result:The result of let is whatever we want. By default, the return type is Unit if we don't specify a return statement, but in our case, we're returning same result String. Remember that in Kotlin the return keyword is not required in certain situations, this is one of them.
+
+Apply
+
+We can compare using apply to using a builder pattern. It allows us to apply operations on an object and return that same object.
+
+val applyExample = someObject.apply {
+    someField = "some field"
+    this.otherField = 99
+    "some result"
+}
+
+Argument (it): argument is not applicable when we use the apply function.
+
+Receiver (this): The receiver refers to the object where we’re using the function, allowing us to access otherField using this keyword.
+
+Result: the result of apply is always the object where we’re using the function, in this case, someObject is the result. The line with "some result" string has no effect at all when using apply and Android Studio even warns that the expression is unused.
+
+Run
+
+Argument (it): argument is not applicable when we use the run function.
+
+Receiver (this): The receiver refers to the object where we’re using the function, allowing us to access otherField using this keyword.
+
+Result: the result of run is whatever we want. Same as with let function, the default return type is Unit if we don’t specify a return statement, but in our case we’re returning same result String.
+
+Also
+
+We can use also to apply some operation in an object and return that same object. Similar to apply in a way but you need to use the argument to access the object, as the receiver in this case refers to the class and not the calling object.
+val alsoExample = someObject.also {
+    print(it.someField)
+    this.someOtherFunction()
+    "some result"
+}
+Argument (it): The argument in the case of also refers to the object where we’re applying the function, in this case, someObject
+
+Receiver (this): The receiver refers to the class where we’re using the function, allowing us to call someOtherFunction() using this keyword.
+
+Result: the result of also is always the object where we’re using the function, in this case someObject is the result. The line with "some result" string has no effect at all when using also
+
+With
+
+We can use with if we want to call several different methods on an object for example as we don't need to do it.method() all the time, we can just call the methods directly as the receiver inside the block is the object itself. And we can also return whatever we want.
+val withExample = with(someObject) {
+    print(someField)
+    this.otherField = 99
+    "some result"
+}
+
+Argument (it): argument is not applicable when we use the with function.
+
+Receiver (this): The receiver refers to the object where we’re using the function, allowing us to access otherField using this keyword.
+
+Result: the result of with is whatever we want. Same as with let and run functions, the default return type is Unit if we don’t specify a return statement, but in our case we’re returning same result String.
+
+	it	this	result
+
+let	object	class	anything
+
+apply	n/a	object	object
+
+run	n/a	object	anything
+
+also	object	class	object
+
+with	n/a	object	anything
+

@@ -1,0 +1,77 @@
+Collection Functions
+
+Kotlin provides a rich utility set of functions for its collections. 
+
+Creation-Functions that create a collection, listof
+
+Convert-Functions that  cast to the other type, asMap
+
+Change-Functions that transform the contents, map
+
+Choose-Functions that access one of the items, get
+
+Conclude-Functions that generate something from the items, sum
+
+Filter
+
+int[] arr = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+List listGreaterThan5 = new ArrayList();
+for (int i : arr) {
+    if (i > 5) {
+        listGreaterThan5.add(i);
+    }
+}
+System.out.println(listGreaterThan5);
+//[6, 7, 8, 9, 10]
+
+println((1..10).filter { it > 5 })
+//[6, 7, 8, 9, 10]
+
+Map
+
+val list = (1..10).toList()
+println(list.map{it * 2})
+// [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+println(list.map{it+ 10})
+// [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+flatmap
+val list = listOf((1..5).toList, (6..10).toList())
+println(list.flatMap{it})
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+take
+
+val list = (1..10).toList()
+val top3 = list.take(3)
+pritln(top3)
+// [1, 2, 3]
+
+drop
+
+val list = (1..10).toList()
+val rest = list.drop(3)
+pritln(rest)
+// [4, 5, 6, 7, 8, 9, 10]
+
+zip
+
+val rank = listOf(1,2,3)
+val person = listOf("Alan", "Bob", "Chris")
+val pairs = rank.zip(person)
+println(pairs)
+// [(1, Alan), (2, Bob), (3, Chris)]
+
+reduce
+
+val list = (1..10).toList()
+val sum = list.reduce{acc, i->acc + i}
+pritln(sum)
+//55
+
+fold
+
+val list = (1..10).tolist()
+val sumWithInitial5 = list.fold(5, {acc, i -> acc + i})
+println(sumWithInitial5)
+60
