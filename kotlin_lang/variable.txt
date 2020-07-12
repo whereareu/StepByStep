@@ -61,6 +61,148 @@ lazy can only be used for val properties, whereas lateinit can only be applied t
 
 If its only meant to initialized once and shared by all, and it's more internally set(dependent on variable internal to the class), then use lzay.
 
+lateinit var	
+
+Can be initialized from anywhere the object see from.
+
+Mutiple initializationn possible.
+
+Non-thread safe. It's up to user to initialize correctly in a multi-thread environment
+
+Can only be used for var.
+
+Not eligible for nonull properties.
+
+by lazy
+
+Can only initialized from the initializer lambda.
+
+Only initialize single time.
+
+Thread-safety by default and guarntees that the initializer is invoked by once.
+
+Can only be used for val.
+
+Not eligible for nonnull properties
+
+Property never able to un-initialized.
+
+Allowed on properties of primitive types.
+
+LAZY PATTERN
+
+The by lazy is like a singleton pattern, if->null->then->init->else->returnValue and the lambda executed only if the variable is called for the first time.
+
+class UserManager private constructor() {
+    companion object {
+        private val userManager = UserManager()
+        fun getInstance() = userManager
+    }
+}
+private val userManager : UserManager by lazy {
+    println("Initializing...")
+    UserManager.getInstance()
+}
+fun main() {
+    println(userManager)
+    println(userManager)
+}
+
+In Kotlin the lazy() is a function that takes a lambda and returns an instance of lazy<T>. In our case, it returns lazy<UserManager>. The variable will not be initialized unless you use that variable in your code. You can see that in the output after you hit the run button the _userManager lazy delegate only initialize the first time and after that, it returns the same value.
+
+The by lazy is very good approach if we're trying to access system service in Android Activity or Fragment class.
+
+class MainActivity : AppCompatActivity {
+   private val connectivityManager: ConnectivityManager by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+    override fun onCreate(savedInstanceState : Bundle) {
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_main)
+         val netweorkInfo  = connectivityManager.activeNetworkInfo
+    }
+}
+
+The above code works perfectly because we're trying to access the lazy delegate inside the onCreate method of an Acitivty.
+
+class MainActivity : AppCompatActivity {
+   private val users = mutableListOf<User>()
+   private val _myAdapter: MyAdapter by lazy {
+        MyAdapter(context : this, data : users)
+    }
+    override fun onCreate(savedInstanceState : Bundle) {
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_main)
+         recyclerView.adapter = _myAdapter
+    }
+}
+
+Note: The by lazy is not good for referencing views in a Fragment. Because of the common pattern of configuring views inside onCreateView cause a crash. They can be used if view configuration is done in onViewCreated.
+
+
+LATEINIT PATTERN
+
+If we want to delay the initialization process of non-null property then we can happily use the laterinit keyword. The lateinit in Kotlin is keyword and we can use it as follows:
+
+class MediaHelper private constructor(){
+    private lateinit var mediaRepo : MediaRepo
+ 
+    init {
+        mediaRepo = getMediaRepo()
+    }
+    private fun getMediaRepo() : MediaRepo {
+         .....
+         .....
+    }
+}
+
+In general, properties declared as non-null with lateinit can be declared anywhere in the project. But before using the property you need to initialize it, not so you get the Caused by: kotlin.UninitializedPropertyAccessException:lateinit property has not been initialized. In our case, we're initializing the mediaRepo int the class initializer block. If you want to inject the properties via dependency injection you need to use the lateinit keyword on a property.
+
+class MediaHelper {
+   @Inject
+   lateinit var mediaRepo : MediaRepo
+   init {
+       DaggerAppComponent
+           .builder()
+           .build()
+           .inject(this)              
+   }
+   fun extractMedia(mediaId: String) : Media {
+        return mediaRepo.get(mediaId)
+   } 
+}
+
+Like we see there are several ways to use lateinit, let’s see another example of view initialization in Fragment.
+
+class LoginFragment : Fragment() {
+    private lateinit var email : TextView
+    private lateinit var password : TextView
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
+         val view = layoutInflater.inflate(R.layout.fragment_user, container, false)
+         email = view.findViewById(R.id.email)
+         password = view.findViewById(R.id.password)
+         return view
+    }
+}
+
+Note: It makes more sense to use lateinit ofr referencing views inside Acitivity and Framgent. The downside is we have to ensure they are initialized in the appropriate lifecycle methods.
+
+Protip: You can also check that the property of lateinit is initialized with the isInitialized method.
+
+lateinit var lazyValue : String
+
+fun main() {
+    if(::lazyValue.isInitialized)
+        println("Initialized...")
+    else
+        println("Not initialized...")
+}
+
+
+
+
+
+
 Getter
 
 getter are used for getting value of the property. Kotlin internally generates as getter for read-only properties using val. The getter is optional in Kotlin. Property type is optional if it can be inferred from the initializer.
