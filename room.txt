@@ -1,0 +1,81 @@
+Room is an object mapping library that help us, the Android developers, to handle an SQLite database in the Android development.
+
+Entity
+
+@Entity(tableName = "Company")
+public class Company {
+
+   @PrimaryKey(autoGenerate = true)
+   @ColumnInfo(name = "id")
+   private int companyId;
+
+   @ColumnInfo(name = "name")
+   private String name;
+
+   @Ignore   
+   Bitmap picture;
+
+@Entity
+
+by using this annotation, Room will know that this class will be a table in the database and the tableName will define the name of the table
+
+# @PrimaryKey
+
+is used to set up the primary key of the table. We could have also a primary key that is composed by many columns and in this case the annotation will be used on the top of the calss, inside of the @Entity
+
+# @ColumnInfo
+defines the name of the column from the table if we don't want to use the name of that field.
+
+# @Ignore 
+the field or the constructor that has this annotation will be ignored by Room, so it will not be used. Also if a field is transient, it is ignored unless it is annotated with @ColumInfo, @Embedded or @Relation
+
+# @TypeConverter
+give us the possibility to translate a custom type from java/Kotlin to SQLite
+
+public class DateConverter {
+   @TypeConverter
+   public static Date toDate(Long timestamp) {
+       return timestamp == null ? null : new Date(timestamp);
+   }
+
+   @TypeConverter
+   public static Long toTimestamp(Date date) {
+       return date == null ? null : date.getTime();
+   }
+}
+
+## Field level
+
+@ColumnInfo(name = "date_updated")
+@TypeConverters(DateConverter.class)
+private Date itemUpdatedDate;
+
+## Entity level
+@Entity
+@TypeConverters(DateConverter.class)
+public class Company
+
+## Dao level
+
+@Dao
+@TypeConverters(DateConverter.class)
+public interface CompanyDao
+
+##  Database level
+
+@Database(entities = {Company.class}, version = 1)
+@TypeConverters(DateConverter.class)
+public abstract class AppDatabase extends RoomDatabase
+
+
+Relations
+
+SQLite is a relational database so it understands the relations between the entities. In Room, Google decided that Entities cannot contain entities. This approach is trying to eliminate the possibility to run database operations on the main thread.
+
+Since we are using a relational database, SQLite, from an object oriented language, Java or Kotlin, for sure you have read something about “object relational impedance mismatch”. This is actually a fancy way of saying: “Yes, it is difficult getting stuff into and out of the database”. The purpose of an ORM is to solve this issue or at least to make the things easier in translating the entities from database to Java or Kotlin classes. Room is also trying to solve this issue.
+
+In Room there are 3 main approaches that could be used to define the relations between the  entities:
+
+@Embedded (nested objects)
+A company has 2 offices and let’s say we want to insert these two locations inside of the “Company” table. This thing is possible by using the @Embedded annotation for the two locations. By adding these two locations, Room is trying to create in the “Company” table two columns with the same same. To solve this issue we should add a “prefix” for the headquarter location.
+

@@ -30,36 +30,49 @@ class Address(val street: String) {
 val name: String = "Kotlin"
 }
 
-Lateinit
 
-lateinit  means late initialization. If you do not want to initialize a variable in the constructor instead you want to initialize it later on and if you can gurantee the initialization before using it, then declare that variable with lateinit keyword. It will not allocate memory unitl initialized.
+lateinit
 
-private lateinit var myViewModel: MyViewModel
+lateinit is late initalization
 
-Then initialize somewhere in your MyViewModel class
-myViewModel = MyViewModel()
+Normally, properties declared as having a non-null type must be initialized in the constructor. Howerver, fairly often this is not convenient. For example, properties can be initialized through dependency injection, or in the setup method of a unit test. In this case, you cannot supply a non-null initializer in the constructor, but you still want to avoid null checks when referencing the property inside the body of a class.
 
-You cannot use val for lateinit variable as it will be initialized later on. Also you must guarantee that you are initializing the variable before using the variable otherwise it will throw exception at runtime. You cannot use lateinit for priimitive type properties like Int, Long etc.
+To handle this case, you can mark the property with the lateinit modifier.
 
-Accessing a lateinit property before it has been initialized throws a special exception that clearly identified the property being accessed and the fact that  it hasn't been initialized.
+public class Test {
 
-Lazy
+  lateinit var mock: Mock
 
-It means lazy initialization. Your variable will not initialized unless you use that variabe in your code. It will be initialized only once after that we always use the same value.
+  @SetUp fun setup() {
+     mock = Mock()
+  }
 
-lazy() is a function that takes a lambda and rerurns an instance of lazy which can serve as delegate for  implementing a lazy property: the first call to get() executes the lambda passed to lazy() and rememberd result, subsequent calls to get() simply return the rememebered result.
-
-val test: String by lazy {
-    val testString = "some value"
+  @Test fun test() {
+     mock.do()
+  }
 }
 
-Lateinit or Lazy
+The modifier can only be used on var properties declared inside the body of a class(not  in the primary constructor), and only when the property does not have a custom getter or setter. The type of the property must be non-null, and it must not be primitive type.
 
-If variable are mutable(i.e might change at a later stage) use laterinit, it can be initialized from anywhere the object is seem from
+public class Example{
+  val name: String by lazy { “Amit Shekhar” }
+}
 
-lazy can only be used for val properties, whereas lateinit can only be applied to var because it can't be complied to a final field, thus no immutability can be guaranteed.
+So the first call the subsequent calls, name will return "Amit Shekhar"
 
-If its only meant to initialized once and shared by all, and it's more internally set(dependent on variable internal to the class), then use lzay.
+Now, How to choose when to use which one?
+
+1 lazy can only be used for val properties, whereas leteinit can only be applied to vars because it can't be complied to a final field, thus no immutablity can be guaranteed.
+
+2 lateinit var can be initialized from anywhere the object is seen from. If you want your property to be initialized from outside in a way probably unknown beforehand, use lateinit.
+
+lazy
+
+lazy is lazy initialization
+
+lazy() is a function that take a lambda and returns an instance of lazy which can serve as a delegate for implementing a lazy property: the first call to get() executes the lambda passed to lazy() and remembers the result, subsequent calls to get() simply return  the remembered result.
+
+
 
 lateinit var	
 

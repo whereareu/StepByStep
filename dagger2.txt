@@ -1,6 +1,35 @@
 Dependency and Injection
 
-Dependency means to depend and Injection means to inject something into something else. Easy then when you combine both it becomes Dependency Injection meaning that you can inject dependencites.
+What is a dependency on Android
+
+If one class uses an instance of another class then it is called dependency. For example - If X class holds the reference of Y class, then class X dependents on class Y. Thus we can say, class Y is the dependency of class X. So, the problem is, if we do changes in class one then we have to do the changes in another class also. So, to increase the rigidity, immorality, and fragility we use Dependency Injections. For example:
+
+public class Stream {
+
+    public static void main(String[] args) {
+        Math math = new Math();
+        Science science = new Science();
+        Subject subject = new Subject(math, science);
+        subject.read();
+    }
+    
+}
+
+In the above example, Math math = new Math(); and Science science = new Science(); shows the hard dependency. So, to avoid this we use dependency injection.
+
+Injection- Simply means passing these dependencies from the outside. It works on the principle of Inversion of Control (IoC)
+
+Inversion of Control: It is generally meant any sort of programming which doesn't create the object. Instead, they get the objects which they need from outside sources. For example, let's suppose you had a bakery and you hire someone from outside to breake cakes. This is the concept of IoC.
+
+Dependency injection: DI facilitates a class to configure it's dependency from outside not statically.
+
+Advantages:
+
+It helps to remove the boilerplate code. Because the initialization of dependencies handled by the injecting component.
+
+Testing is easy.
+
+Local Singletons(Scopes)
 
 Body----------->Blood
 		^
@@ -8,141 +37,93 @@ Body----------->Blood
       |	      |	       |	         |	
 A_Blood	B_Blood	AB_Blood   O_Blood
 
-In the diagram, we have a class Body that denpends on a class Blood. Just like real life, Body will have Blood as a member indide of its class (Body depends on Blood). In addition, we can inject the blood into the body using an injection. Of course we could create a factory inside Body to create Blood but this would create boilerplate ocde. It is better if we just inject it throug a dependency injection framework, that is where Dagger2 comes in.
+In the diagram, we have a class Body that denpends on a class Blood. Just like real life, Body will have Blood as a member indide of its class (Body depends on Blood). In addition, we can inject the blood into the body using an injection(when body need it). Of course we could create a factory inside Body to create Blood but this would create boilerplate ocde. It is better if we just inject it throug a dependency injection framework, that is where Dagger2 comes in.
 
-Dagger and dependencies
 
-Dagger is dependency injection framework for Android, and here we see how to use and configure it.
+Dagger is a framework that simply works on the Dependency Injection framework. 
 
-Dagger injects the class using the annotation @inject, it can be used in a constructor:
+@Injection
+Injection/Dependency Client:
 
-public class Body {
-  
-    @Inject
-    public Body(){}
+A class that uses instance is the client or injection class. We have three places to put our injections with a symbol @Inject at constructor, methods, and fields.
 
-}
-
-In this way, Dagger injects the Body class into another class when needed by Injection. For example
-
-public class Person{
-
-  Body body;
-  
-  @Inject
-  public Person(Body body){
-    this.body = body;
-  }
-  
-}
-
-Since Body is not a singleton, what dagger does it to create a new Body object every time that a Person is created by Dagger.  Of course every person has a different body so this is okay.
-
-Now let's inject Blood into the Body, all Bodies have blood:
-
-public class Body {
+public class Subject 
+{
+    private Math math ;
+    private Science science;
 
     @Inject
-    Blood blood;
+    public Subject(Math math, Science science ){}
 
+    public void read(){ }
+}
+
+public class Subject {
+    @Inject 
+    Math math ;
+
+    private Science science ;   //can’t be injected
 
     @Inject
-    public Body(){}
+    public Subject(Science science ){}
 
-    public Blood getBlood() {
-        return blood;
-    }
-
-    public void setBlood(Blood blood) {
-        this.blood = blood;
-    }
+    public void read(){ }
 }
 
-And now let's create the class for Blood:
+public class Subject {
+    Math math;
+    private Science science;
 
-public abstract class Blood {
+    @Inject
+    public Subject(Math math, Science science){}
 
-    public abstract String getKindOfBlood();
+    @Inject
+    public void readMathBook(){ }
 
+    public void read(){ }
 }
 
-This one is an abstract class and its subclass extends Blood ad gets the type of blood as a string:
-
-Okay, you may think, good we have everything set, the Blood will be injected into the Body, but...how? We hve 4 types of Blood: A, B, AB and O. Blood is just an interface, how does Dagger know which Blood to inject? The answer is that it doesn't know, this will not work; we need some kind of injection module that injects the blood type we need. Therefore to sovle this problem, Dagger introduced a new concept; The Module.
-
-Dagger Modules
-
-A module is a class that injects concete classes for an interface. It allows different modules to inject different kinds of concete implementations into our code. In addition, we can plug-out and plug-in different modules by code. In our case, we use a module called RandomInjectionModule that injects random Blood into the Body(it sounds scary but it is just a programming example, nobody will die!). Notice that we don't need a module if we don't need to inject an interface.
-
-Let's implement a module, we will use the @module in a class and @provider in a method, it's best paractice to suffix the class with Module and the method will prefix; Provider, as show here:
+Modules and  providers:
+It is a creator. It's role is to provide instances. If we don't own the class and it comes from outside then we use modules and providers. As it comes from the external class we can't use @inject in it.
 
 @Module
-public class RandomInjectionModule {
-
-    private static Blood blood;
-
-    public RandomInjectionModule() {
-    }
+class ScienceModule{
 
     @Provides
-    static Blood provideBlood(){
-
-        if(blood != null) {
-            return blood;
-        }
-
-        Random rnd = new Random();
-        int rndNumber = rnd.nextInt(3);
-
-        switch (rndNumber){
-            case 0: blood = new A_Blood(); break;
-            case 1: blood = new B_Blood(); break;
-            case 2: blood = new AB_Blood(); break;
-            case 4: blood = new O_Blood(); break;
-            default: blood = new A_Blood();
-        }
-
-        return blood;
-    }
+    ScienceBook provideScienceBooks(){
+        return new ScienceBook();
+     }
 }
 
-As you can see, a Blood instance is returned as a concrete class. In face, it will always return the same instance since it was marked as static.
+Component in Dagger
 
-Now we need to use the module in our code. To do that, Dagger introduces another new concept: Component.
+Commponent are dagger access points. We can say, it is a dependency manager or an interface that binds the module and injects the class. It holds all the dependency together.
 
-Dagger Components
-
-A component is an interface which specifies what modules to use and what objects to return for our code. For example; we are in our main method in Java and we have a Doctor component that uses the random injection module to inject blood:
-
-@Component( modules = RandomInjectionModule.class )
-public interface Doctor {
-    Body injectBlood();
+@Component(modules={ApplicationModule.class,  ScienceModule.class})
+public interface SubjectComponent{
+    
+    Subject getSubject();
+    
+    void inject(SubjectActivity activity); // this line is to inject the class.
 }
 
-In the above code, we return a Body using the RandomInjectionModule. It means that a Random blood is injected in the Body automatically by the dependency injection framework that we specified using the @injection in Body. If we returned a Person using the RandomInjectionModule then a Random blood and Body will be injected as well.
+How to call dagger component:
 
-Now let's use our Component in our code. Dagger2 generates a class with the same name as our class. prefixed with 'Dagger' when our project is compiled. In our case, it's called DaggerDoctor and it has different methods to set different instances of our modules. As in our casse all dependecies can be constructed without the user creating a dependency instance, the DaggerDoctor component has a create() method that instantiates our module and module an injects our classes automatically:
-
-public class MainActivity extends AppCompatActivity {
+public class SubjectActivity extends AppCompatActivity {
+    @Inject
+    Subject subject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_subject);
 
-        Body body = createBody();
-
-        TextView bloodTV = findViewById(R.id.blood_tv);
-
-        bloodTV.setText("Kind of Blood: " + body.getBlood().getKindOfBlood());
-    }
-
-    private Body createBody() {
-        Doctor doctor = DaggerDoctor.create();
-        return doctor.injectBlood();
+        //Calling dagger component
+        DaggerSubjectComponent component = DaggerSubjectComponent.create();
+        component.inject(this);
+        subject.read();
     }
 }
-
 
 Dagger Scopes
 
@@ -191,6 +172,8 @@ interface ApplicationComponent {
    ...
    fun plus() LoginComponent
 }
+
+
 
 
 

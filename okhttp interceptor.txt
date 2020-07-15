@@ -1,0 +1,193 @@
+OkHttp Interceptor 
+
+OkHttp interceptor is a powerful mechanism to customise its behaviour. We may intercept the HTTP requests and responses, modify them. It is transparent to application code that makes use of OkHttp. OkHttp provides a logging interceptor so that it is easy to log how OkHttp handles the network traffic. 
+
+Types of Interceptors
+
+Application Interceptors: There are interceptors that are added between the Application Code(our written code) and the OKHttp Core Library. There are the ones that we add using addInterceptor()
+
+Network Interceptors: There are interceptors that are added between the OKHttp Core Library and the Server. There can be added to OKHttpClient using addNetworkInterceptor()
+
+    fun myHttpClient(): OkHttpClient {
+        val builder = OkHttpClient().newBuilder()
+            .addInterceptor(/*our interceptor*/)
+        return builder.build()
+    }
+
+Here, in addInterceptor we pass the interceptor that we have created.
+
+Creating the Interceptor
+
+To create the interceptor, we need to create a class by implementing the Interceptor interface like below:
+
+class MyInterceptor : Interceptor {
+ override fun intercept(chain: Interceptor.Chain): Response {
+        /**
+         * Our API Call will be intercepted here
+         */
+    }
+}
+
+Here, in the interceptor(), we can perform any action which we want inside it.
+
+And to use the interceptor, we can use like below:
+
+fun myHttpClient() : OkHttpClient {
+   val builder = OkHttpClient().newBuilder()
+        .addInterceptor(MyInterceptor())
+    return builder.build()
+}
+
+We can add the MyInterceptor in addInterceptor()
+
+Logging the errors centrally
+
+class ErrorInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+
+        val request: Request = chain.request()
+        val response = chain.proceed(request)
+        when (response.code()) {
+            400 -> {
+                //Show Bad Request Error Message
+            }
+            401 -> {
+                //Show UnauthorizedError Message
+            }
+
+            403 -> {
+                //Show Forbidden Message
+            }
+
+            404 -> {
+                //Show NotFound Message
+            }
+
+            // ... and so on
+
+        }
+        return response
+    }
+}
+
+First, we get the request from chain.request()
+Then, we get the response returned from the server, by passing the request in chain.proceed(request)
+Now, we can check for the response code and perform an action.
+We can pass the error to the view using via the interfaces or by using something like RxJava, EventBus, and etc.
+Let's say if we get a 401 error i.e. Unauthorized then we can perform an action to clear the app data/log out the user or any action which we want to perform.
+
+Now, to use this ErrorInterceptor in our OkHttpClient, we can add like below:
+.addInterceptor(ErrorInterceptor())
+
+This is how we can create a centralized Error Logger using the Interceptor.
+
+OkHttp has a built-in logger which is very useful for dubugging.
+
+Note: If we want to log the details for the redirection of URL, consider using the interceptor at the network layer using the addNetworkInterceptor().
+
+Caching the response
+
+If we want to create the response of the API call so that if we call the API again, the response comes out from Cache.
+
+Let's say we have the API call from Client to Server and Cache-Control header is enabled from the server, then OKHttp Core will respect that header and cache the response for a certain time being which was sent from the server.
+
+But what if the Cache-Control is not enabled from the server. We still can cache the response from OkHttp Client using Interceptor.
+
+class CacheInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val response: Response = chain.proceed(chain.request())
+        val cacheControl = CacheControl.Builder()
+            .maxAge(10, TimeUnit.DAYS)
+            .build()
+        return response.newBuilder()
+            .header("Cache-Control", cacheControl.toString())
+            .build()
+    }
+}
+
+Here, we have a CacheControl which is used to provide the header for Cache-Control.
+
+Finally, we can add like below:
+
+.addNetworkInterceptor(CacheInterceptor())
+
+Here, if we see, we are not using the addInterceptor() but using addNetworkInterceptor() for the use case. This is because in this case, the operation is happening at the network layer.
+
+But, there is something important, we need to consider while building the offine-first app.
+
+The cached response will be returned only when the Internet is available as OkHttp is designed like that.
+
+When the Internet  is available and data is cached, it returns the data from the cache.
+
+Even when the data is cache and the Internet is not available, it returns with the error "no internet available".
+
+What to do now?
+
+We can use the following ForceCacheInterceptor at the Application layer in addition to the above one(CacheInterceptor, only if not enabled from the server). 
+
+class ForceCacheInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val builder: Request.Builder = chain.request().newBuilder()
+        if (!IsInternetAvailable()) {
+            builder.cacheControl(CacheControl.FORCE_CACHE);
+
+        }
+        return chain.proceed(builder.build());
+    }
+}
+
+We can add the Interceptor in OkHttpClient like below:
+
+.addNetworkInterceptor(CacheInterceptor()) // only if not enabled from the server
+.addInterceptor(ForceCacheInterceptor())
+
+
+Adding the Header like Access Token centrally
+
+Let's say that we have to make the API calls and have to add Authorization Header in all the API calls. Either we can use it individually or we can centralize that using the Interceptor.
+
+class AuthTokenInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+
+        val originalRequest = chain.request()
+        val requestBuilder = originalRequest.newBuilder()
+            .header("Authorization", "AuthToken")
+        val request = requestBuilder.build()
+        return chain.proceed(request)
+    }
+}
+
+This is how we can centralize the Header which is common in all the API Calls. Now to use it in the OkHttpClient, we will do like below:
+
+.addInterceptor(AuthTokenInterceptor())
+
+Refreshing the Access Token at Single Place
+
+Let us say we have a use-case that when we get a 401 error in the Error Interceptor and we need to refresh the auth token as we have an Unauthorized error. We can do that using the below:
+
+override fun intercept(chain: Interceptor.Chain): Response {
+
+    val accessToken = //our access Token
+    val request = chain.request().newBuilder()
+        .addHeader("Authorization", accessToken)
+        .build()
+    val response = chain.proceed(request)
+
+    if (response.code() == 401) {
+            val newToken: String = //fetch from some other source
+            if (newToken != null) {
+               val newRequest =  chain.request().newBuilder()
+                    .addHeader("Authorization", newToken)
+                    .build()
+                return chain.proceed(newRequest)
+            }
+    }
+
+    return response
+}
+
+If we get the response.code() as 401 i.e. Unauthorized, we will refresh the token here, then modify the request by adding the new header and make the new request to the server.
+
+Note: Another way that is more flexible when it comes to refreshing the Access Token is to use the Authenticator interface of OkHttp.
+
+

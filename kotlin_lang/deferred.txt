@@ -1,0 +1,24 @@
+ * Deferred value is a non-blocking cancellable future &mdash; it is a [Job] with a result.
+
+ * It is created with the [async][CoroutineScope.async] coroutine builder or via the constructor of [CompletableDeferred] class.
+ * It is in [active][isActive] state while the value is being computed.
+
+ * `Deferred` has the same state machine as the [Job] with additional convenience methods to retrieve
+ * the successful or failed result of the computation that was carried out. The result of the deferred is
+ * available when it is [completed][isCompleted] and can be retrieved by [await] method, which throws
+ * an exception if the deferred had failed.
+
+* A deferred value is a [Job]. A job in the
+ * [coroutineContext](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.coroutines/coroutine-context.html)
+ * of [async][CoroutineScope.async] builder represents the coroutine itself.
+
+
+public suspend fun await(): T
+
+     * Awaits for completion of this value without blocking a thread and resumes when deferred computation is complete,
+     * returning the resulting value or throwing the corresponding exception if the deferred was cancelled.
+
+     * This suspending function is cancellable.
+
+
+

@@ -1,0 +1,30 @@
+Public Modifier
+A Public Modifier is the default modifier in Kotlin. Just like the Java public modifier, it means that the declaration is visible everywhere.
+
+Protected Modifier
+A Protected Modifier in Kotlin:
+CANNOT be set on top-level declarations.
+Declarations that are protected in a class, can be accessed only in their subclasses.
+
+
+Internal Modifier
+Internal is a new modifier available in Kotlin that’s not there in Java.
+Setting a declaration as internal means that it’ll be available in the same module only.
+By module in Kotlin, we mean a group of files that are compiled together.
+
+These won’t be visible outside the current module.
+Internal Modifiers is useful when you need to hide specific library implementations from the users.
+This wasn’t possible using the package-private visibility in Java.
+
+If you override a protected member and do not specify the visibility explicitly, the overriding member will also have protected visibility.
+
+When dealing with multi module projects in Android, internal is an extremely convenient modifier. It makes things visible everywhere in the current module, but not visible outside. public vs internal in a module defines the frontier between the module’s API and the implementation details. This is specially important for library developers, where that frontier needs to be very well defined.
+We stated before that in Kotlin packages become less relevant, files more relevant and hierarchies flatter. In modern Android projects, the number of modules is increasing rapidly and they are usually not very big. The sum of all of it makes internal the modifier that I most commonly type.
+
+
+Private Modifiers
+Private Modifiers do not allow the declarations to be visible outside the current scope.
+
+
+
+
