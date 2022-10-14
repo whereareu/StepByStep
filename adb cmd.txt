@@ -1,0 +1,22 @@
+adb shell "dumpsys activity activities | grep ResumedActivity"
+
+adb pair HOST[:PORT] [PAIRING CODE]
+
+adb devices -l
+
+adb logcat > logcat.txt
+
+adb -s $ANDROID_SERIAL 
+
+adb disconnect
+
+adb bugreport > Bugreport.zip
+
+8258 1230
+
+adb shell am clear-debug-app
+
+Windows：C:\Users\your_user_name\AppData\Roaming\Google\AndroidStudio4.1\plugins
+macOS：~/Library/Application Support/Google/AndroidStudio4.1\plugins
+
+/Users/liao/Library/Android/sdk/tools/bin
