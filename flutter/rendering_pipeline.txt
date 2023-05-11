@@ -1,0 +1,66 @@
+BuildOwner:
+Widgets框架的管理器类。主要用于收集需要rebuild的Element和inactive状态的Element。包括在用户调用setState以后，管理脏数据列表并在执行生成新帧时（WidgetsBinding.drawFrame方法中[引擎调用]）负责重建element树。设计inactive状态的主要目的是实现带有global key的Element可以带着状态在树上任意移动.
+
+PipelineOwner:
+渲染树的管理类。它为渲染管道存储 layout, compositing bits, paint, and semantics stages 的脏状态。任何时候Render Object 的任何变化都会影响该对象的布局，它应该调用 markNeedsLayout 方法。它根据上面面的顺序冲洗管道。
+
+
+单程布局
+布局阶段是单向的：从上到下，一次通过。父 RenderObject 通过为子渲染对象提供它们的约束来调用布局方法：maxWidth、minWidth、maxHeight 和 minHeight 值。
+与构建阶段一样，布局阶段最初也具有线性性能(时间复杂度O(N))，随后是次线性性能。Flutter 每帧执行一个布局，一旦渲染对象从其布局方法返回，该渲染对象将不会被再次访问，直到下一帧的布局。孩子无权超出所提供的限制来调整自己的尺寸。这种方法将本来可能是单独的测量和布局传递组合成一个传递，因此，每个渲染对象在布局期间最多访问两次：一次在下树的路上，一次在上树的路上。即父 RenderObject 访问渲染树并在其中将约束条件一一传递给其子项，然后孩子将大小返回给父亲，即向下约束，向上几何。
+Android 应用程序来说是一个两阶段过程：测量阶段和布局阶段。在 measure pass 中，父视图调用子视图的 measure 方法来找出子视图在给定约束内应该有多大。当此方法从子视图返回时，子视图及其所有后代会自行测量。根据情况，父母可能会多次调用孩子的测量方法。例如，在第一次通话中，父母知道如果没有限制，孩子们想要多大或多小。然后，在第二次调用中，父级提供实际约束。布局过程在测量过程完成时开始。在此过程中，父母根据他们想要的尺寸定位他们的孩子。考虑到它是如何在不同平台上本地完成的，在构建和布局阶段使用单遍算法的次线性性能是一个重要的优化。 
+在 Flutter 中，child 的定位是由 parent 控制的，独立于 layout 过程，无法在 layout 所有 child 之前完成。一些渲染对象尽可能晚地进行定位。即使在某些情况下，定位也是在绘制阶段完成的。
+
+
+Element 的 mount 方法好像需要定位自己的位置：
+人类的子代关系，需要知道父亲是谁，自己在兄弟姐妹中关系，自己年纪，并且自己是第几代子系等。
+而这个关系需要参考父亲的位置，相对他来追溯即可。
+这些关系的具体实现方法是在Element的inflateWidget方法内，通过调用Widget.createElement 和 Element.mount方法实现。
+Widget和element的关系就好像是预定论中的概念。Element创建之前就被widgets设定的内容和位置确定了，之后再根据 widget 创建 element，widget本身是不可变的（Immutable注解 [该类的所有实例字段，无论直接定义或继承，都是final），但是element是可变的（私有变量_child|parent|_widget可以被替换），element持有widget的引用.
+ComponentElement每颗树上的节点是通过递归调用ComponentElement的performRebuild
+的方法实现。这包括调用Element.build方法创建Widget和Element的updateChild方法创建element并mounted。
+
+setState 方法会调用Element.markNeedsBuild方法将当前Element标记为脏并将其加入到Widget的全局列表中（BuildOwner的_dirtyElement集合），等待engine生成新帧时重建elements树。当elements树重建完成以后，泵送rendering pipeline 生成帧. 
+具体方法执行是在执行Persistent callbacks 时，调用WidgetBing的drawFrame方法，先后执行        buildOwner!.buildScope(renderViewElement!);
+RendererBinding的drawFrame
+WidgetBing override RenderBinding 的 drawFrame 方法
+
+
+
+
+SchedulerBinding:
+/// Scheduler for running the following:
+///
+/// * _Transient callbacks_, triggered by the system's
+///   [dart:ui.PlatformDispatcher.onBeginFrame] callback, for synchronizing the
+///   application's behavior to the system's display. For example, [Ticker]s and
+///   [AnimationController]s trigger from these.
+///
+/// * _Persistent callbacks_, triggered by the system's
+///   [dart:ui.PlatformDispatcher.onDrawFrame] callback, for updating the
+///   system's display after transient callbacks have executed. For example, the
+///   rendering layer uses this to drive its rendering pipeline.
+///
+/// * _Post-frame callbacks_, which are run after persistent callbacks, just
+///   before returning from the [dart:ui.PlatformDispatcher.onDrawFrame] callback.
+///
+/// * Non-rendering tasks, to be run between frames. These are given a
+///   priority and are executed in priority order according to a
+
+
+handleBeginFrame
+  /// Called by the engine to prepare the framework to produce a new frame.
+  ///
+  /// This function calls all the transient frame callbacks registered by
+  /// [scheduleFrameCallback]. It then returns, any scheduled microtasks are run
+  /// (e.g. handlers for any [Future]s resolved by transient frame callbacks),
+  /// and [handleDrawFrame] is called to continue the frame.
+
+handleDrawFrame:
+  /// This method is called immediately after [handleBeginFrame]. It calls all
+  /// the callbacks registered by [addPersistentFrameCallback], which typically
+  /// drive the rendering pipeline, and then calls the callbacks registered by
+  /// [addPostFrameCallback].
+
+
+
