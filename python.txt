@@ -1,0 +1,4 @@
+shutil.rmtree(path)    #递归删除文件夹，即：删除非空文件夹
+os.rmdir(path)    #删除空文件夹
+os.remove(path)   #删除文件
+

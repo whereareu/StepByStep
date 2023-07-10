@@ -1,0 +1,231 @@
+
+感知器（神经元）
+简单地说，感知器（也称为神经元）只是一个接受输入的元素，并在给定一些参数（通常是一组权重和偏差）的情况下输出一个新数字。
+基本感知器作为一个简单的线性函数工作，斜率是它的权重，y 轴截距是它的偏差。这可以显示为功能：
+y = Wx + b
+x 是输入 y 是输出 w是权重 b 是偏差
+每个感知器通常还包括非线性（或激活函数）。这是根据上述函数的结果计算的附加函数。最著名的激活函数是 sigmoid 函数，定义为：
+S(x) = 1 / (1 + e^-x)
+x 是感知器权重、输入和偏差的输出
+S(x) 是感知器的输出
+通常，感知器会接收多个输入。每个输入都有自己的权重值，乘以该输入的值。然后计算加权输入的总和，在顶部添加偏差。最后，应用激活函数。
+感知器的输出可以通过一个函数来表示：
+P(x) = S(∑ wi * xi + b)
+其中：
+i 表示输入的索引
+w 是对应的权重
+x 是对应的输入
+b 是偏差
+S 是激活函数
+P(x) 是输出
+
+多层感知器
+多层感知器，也称为神经网络。第一层表示输入结构（也称为特征）。这些特征被馈送到隐藏层感知器，并计算每个值。然后将这些隐藏层感知器的结果馈送到输出层感知器。
+任意数量的隐藏层可以相互堆叠，使神经网络更加复杂。隐藏层可以有任意数量的感知器，这取决于手头任务的复杂程度。输入和输出层具有与任务对应的感知器数量。
+神经网络可以像这样用于逻辑回归。神经网络可用于任何类型的回归，只需更改内部使用的激活函数即可。
+
+学习方法
+教多层感知器执行其预期任务的常用方法有 3 种：
+强化学习、监督学习和无监督学习。强化学习和监督学习比无监督学习更重要。
+
+监督学习
+通过已有的训练样本（即已知数据以及其对应的输出）来训练，从而得到一个最优模型，再利用这个模型将所有新的数据样本映射为相应的输出结果，对输出结果进行简单的判断从而实现分类的目的，那么这个最有模型也就具有了对未知数据进行分类的能力。
+分类（classification）
+x->y的映射，y是离散值，一般用0或1表示一个离散目标。一般将分类算法叫做分类器（Classifier）
+回归（regression）
+x->y的映射，y是一个连续的实数
+
+无监督学习
+事先没有任何标注的训练数据样本，需要直接对数据进行建模
+
+强化学习
+根据反馈进行调整（延迟反馈）
+
+感知机算法（生物算法）
+N个树突感知输入信号，在细胞体做运算，传导至轴突进行决策，输出一个输出信号。
+转换为一个数学算法：
+实际上感知机算法是一个线性分类器，假定特征平面上的点可以用一条直线分开，直线的两边是不同的分类。感知机的学习就是直线调整位置的过程，即调整直线斜率和截距的过程。
+y=w1x1 + w2x2 + ... y>θ -> 1 ; y<θ -> 0 将0和1代表不同的分类，将模型预测的结果和真实的结果比较判断是否正确，从而进行反馈，改变权重。
+W.x的向量点积 > θ 模拟树突放电 < θ 不放电
+信号强弱和权重大小对应，通过调整w进行偏好表达。
+θ表示一个域值
+
+代价函数
+错误量的总和
+错误点到分类器的距离。
+
+
+
+What is machine learning regression? 
+
+Regression is a method for understanding the relationship between independent variables or features and a dependent variable or outcome. Outcomes can then be predicted once the relationship between independent and dependent variables has been estimated.
+
+Machine learning regression generally involves plotting a line of best fit through the data points. The distance between each point and the line is minimised to achieve the best fit line.  
+
+Supervised Machine Learning
+
+Supervised learning is the types of machine learning in which machines are trained using well "labelled" training data, and on basis of that data, machines predict the output. The labelled data means some input data is already tagged with the correct output.
+
+Supervised learning is a process of providing input data as well as correct output data to the machine learning model. The aim of a supervised learning algorithm is to find a mapping function to map the input variable(x) with the output variable(y).
+
+Alongside classification, regression is one of the main applications of the supervised  type of machine learning. Classification is the categorisation of objects based on learned features, whereas regression is the forecasting of continuous outcomes. Both are predictive modelling problems. Supervised machine learning is integral as an approach in both cases, because classification and regression models rely on labelled input and output training data. The features and output of the training data must be labelled so the model can understand the relationship. 
+
+卷积操作的本质
+
+1）Sparse Interaction（稀疏交互）
+
+因为卷积核的尺度会小于输入的维度，也就是我们的FIlter会小于网络大小一样，这样子每个输出神经元仅仅会与部分特定局部区域内的神经元存在连接权重（也就是产生交互），这种操作特性我们就叫稀疏交互。稀疏交互会把时间复杂度减少好几个数量级，同时对过拟合的情况也有一定的改善。
+
+2）Parameter Sharing（参数共享）
+
+指的是在同一个模型的不同模块使用相同的参数，它是卷积运算的固有属性。和我们上面说的Filter上的权值大小应用于所有网格一样。
+
+
+Weights and Biases
+
+Neurons are the basic units of a neural network. In an ANN, each neuron in a layer is connected to some or all of the neurons in the next layer. When the inputs are transmitted between neurons, the weights are applied to the inputs along with the bias. 
+
+抽象出特征（局部的形状）：
+利用卷积提取特征（卷积核与像素点乘机求和）填充 特征图
+卷积核本身具备某种指定的特征，使用不同的卷积核提取不同的特征得到特征图
+利用最大池化法进一步提取 局部最大特征值 从而缩减特征图
+最后激活
+
+将图像进行过滤之后再进行深度学习，过滤图像后，图像特征才能被凸显出来，过滤器本身就是一个乘法器。
+池化将过滤后的像素进行分组，再向下过滤到它的子集里，例如最大池化法就是从每个分组中过滤出最大值到一个数集中。这样子可以缩小图像但是保留了图像的所有特征并被增强。
+过滤器是被习得的，一开始只是一些参数，就像卷积层的参数一样，当把图像输入到卷积层后，它会把随机生成的过滤器覆盖到图像上，随后这些运算结果会被传递到下一层，再用神经网络进行匹配，过了一段时间以后，那些最好的结果就会被过滤器记下，这个过程就叫做特征提取。这样就可以根据某些部位的特征进行识别，会更快和精准。
+就这样电脑通过不断试错(不断猜测)发现数据中的关系
+
+过度拟合（c）
+训练数据过少，无法进行泛化，过度关注特例，将特例当作一般结论。实际上应该选择忽略一些随机噪声。
+
+欠拟合（Underfitting）
+
+过度拟合的解决方法是通过交叉验证
+Cross-Validation（交叉验证）
+交叉验证是一种用于评估机器学习模型并测试其性能的技术。 CV 通常用于应用 ML 任务。它有助于比较和选择选择合适的模型。
+
+KNN
+纬度增加 距离失效 数据量大 算法超慢
+
+
+混淆矩阵（Confusion Matrix）
+
+True Positive（TP）：真正类。样本的真实类别是正类，并且模型识别的结果也是正类。
+
+False Negative（FN）：假负类。样本的真实类别是正类，但是模型将其识别为负类。
+
+False Positive（FP）：假正类。样本的真实类别是负类，但是模型将其识别为正类。
+
+True Negative（TN）：真负类。样本的真实类别是负类，并且模型将其识别为负类。 
+
+样例总数 = TP + FP + TN + FN。
+
+Accuracy = (TP+TN)/(TP+FN+FP+TN)
+精确率是最常用的分类性能指标。可以用来表示模型的精度，即模型识别正确的个数/样本的总个数。一般情况下，模型的精度越高，说明模型的效果越好
+
+Precision = TP/(TP+FP) 
+又称为查准率，表示在模型识别为正类的样本中，真正为正类的样本所占的比例。一般情况下，查准率越高，说明模型的效果越好。
+
+Shape: The length (number of elements) of each of the axes of a tensor.
+Rank: Number of tensor axes. A scalar has rank 0, a vector has rank 1, a matrix is rank 2.
+Axis or Dimension: A particular dimension of a tensor.
+Size: The total number of items in the tensor, the product of the shape vector's elements.
+
+Flatten Layer
+Once the model has learnt the features, it is ready to flatten the final feature map and feed it to a neural network(e.g few dense layers) for classification purposes.
+However, dense layers take vectors as input(which are 1D), while the current output is a 3D tensor.
+Therefore, a flatten layers is used to convert the data into a 1-dimessional array for inputting it to the next layer.
+E.g, a 3*3 image matrix into a 9*1 vector
+
+Dense Layer
+Dense layer is a fully-connected layer. To complete the model, one or more dense layers can be added.
+The architecture can simply be considered as a shallow neural network to perform classification or prediction.
+
+
+
+
+梯度下降算法，不断更新：
+
+t e m p 0 := θ 0 − α ∗ ∂ / ∂ θ 0 F ( θ 0 , θ 1 ) 
+t e m p 1 := θ 1 − α ∗ ∂ / ∂ θ 1 F ( θ 0 , θ 1 ) 
+θ 0 := t e m p 
+0 θ 1 := t e m p 1
+
+直到收敛。注意 
+θ0和θ1值要同时更新，切记不要求一次导更新一次！
+α被称作为学习速率。
+
+如果 
+α被设置的很小，需要很多次循环才能到底最低点。
+如果α被设置的很大，来来回回可能就会离最低点越来越远，会导致无法收敛，甚至发散。
+当快要到最低点的时候，梯度下降会越来越慢，因为 ∂/∂θ越来越小
+
+偏导数的几何意义也是切线的斜率，不过由于在曲面上，在一个点上与该曲面曲线相切的是一个面，就意味着切线有无数条。这里我们感兴趣的是2条切线，一个条是垂直于 y 轴（平行于 xOz 平面）的切线，另外一条是垂直于 x 轴（平行于 yOz 平面）的切线。这两条切线对应的斜率就是对 X 求偏导和对 Y 求偏导。
+
+一个多变量函数的偏导数是它关于其中一个变量的导数，而保持其他变量恒定（相对于全导数，在其中所有变量都允许变化）。
+偏导数的物理意义表示函数沿着坐标轴正方向上的变化率。
+
+
+一个标量就是一个单独的数(整数或实数)，不同于线性代数中研究的其他大部分对象(通常是多个数的数组)。
+一个向量表示一组有序排列的数，通过次序中的索引我们能够找到每个单独的数
+矩阵是一个二维数组，其中的每一个元素由两个索引来决定(A i，j）
+超过二维的数组，一般来说，一个数组中的元素分布在若干维坐标的规则网格中，被称为张量。
+标量是0维空间中的一个点，向量是一维空间中的一条线，矩阵是二维空间的一个面，三维张量是三维空间中的一个体。也就是说，向量是由标量组成的，矩阵是向量组成的，张量是矩阵组成的。
+
+矩阵乘法（matrix multiplication）
+是一种根据两个矩阵得到第三个矩阵的二元运算，第三个矩阵即前两者的乘积，称为矩阵积（英语：matrix product）。矩阵相乘最重要的方法是一般矩阵乘积。它只有在第一个矩阵的列数（column，台湾作行数）和第二个矩阵的行数（row，台湾作列数）相同时才有定义。一般单指矩阵乘积时，指的便是一般矩阵乘积。如果A是一个m*n（m表示行数，n表示列数）矩阵，B为n*p（m表示行数，n表示列数）矩阵，则它们的乘积AB（A.B）会是一个m*n矩阵。
+向量表方法：
+一般矩阵乘积也可以想为是行向量和列向量的内积。
+A=
+a1,1 a1,2 a1,3 ...
+a2,1 a2,2 a2,3 ...
+a3,1 a3,2 a3,3 ...
+A= 
+A1
+A2
+A3
+.
+.
+.
+
+B=
+b1,1 b1,2 b1,3 ...
+b2,1 b2,2 b2,3 ...
+b3,1 b3,2 b3,3 ...
+B= [B1,B2,B3 ...]
+A1是由所有a1,x元素组成的向量，A2是由所有a2,x元素所组成的向量
+B1是由所有bx,1元素所组成的向量，B2是由所有bx,2元素所组成的向量
+即(AB)ij = AiBj
+
+当实现一个神经网络的时候 一些技巧是非常重要的 比如如果你有一个含有m个训练样本的训练集 你可能习惯于用一个for循环 来处理这m个训练样本 但当你实现一个神经网络的时候 你一般想训练整个训练集 但不显式使用for循环来遍历整个训练集 那么，你将在本周的资料中看到如何实现这一点 另外，当你在你的网络中组织计算的时候 经常使用所谓的前向传播 以及所谓的反向传播 所以在本周的资料中 你还将了解到为什么在训练神经网络时 计算可以被正向转播组织为一次前向传播过程 以及一次反向传播过程
+
+逻辑回归
+使用这种学习算法会得到的输出标签y，y在监督学习问题中全是0 或者1 因此这是一种针对二分类问题的算法。给定的输入特征向量 x 和一幅图片对应 我们希望识别这是否是一张猫的图片 因此我们想要一种算法能够输出一个预测值 我们称之为 y^ 这代表对真实标签 Y 的估计 形式上讲 y^ 是当给定输入特征x时 预测标签 y 为1的概率 换种说法就是当x是一张图片 就像我们在上一个视频看到的 你想要yhat告诉你这是一张猫图的概率 你想要yhat告诉你这是一张猫图的概率 因此就像我在之前视频中说的 x是一个n_x维的向量 约定逻辑回归的参数是 w w 也是一个n_x维的向量 另外 参数b是一个实数 因此给定了一个输入x 以及参数 w 和 b 那么如何产生输出 yhat 呢？ 有一种方法可以试试 尽管它不怎么奏效 就是让 yhat 等于 w.T*x+b 这是输入x的一个线性函数输出 事实上 如果使用线性回归 就是这样操作的 但是这对于二分类并不是一个好的算法 因为你希望 y^ 能够输出 y 为1的概率 因此 y^ 的值应该在0和1之间 而这种算法很难实现这个要求 因为w.T*x+b可能会比1大很多或者是一个负数 这对于概率就失去了意义 因此 yhat 值要在0和1之间 所以 让逻辑回归中的输出 yhat  等于对这个值应用sigmoid函数的结果 sigmoid函数是这样的 如果水平轴的标签为z 那么函数sigmoid(z)是这样的 它从0平滑地升高到1 让我给轴标上标签 这是0 然后它会在0.5处和竖直轴交叉 因此这就是sigmoid(z)函数 这里用z表示 (w.T*x+b) 因此这就是sigmoid(z)函数 这里用z表示 (w.T*x+b) 这是sigmoid函数的公式 当z是一个实数 sigmoid(z)就等于 1 / ( 1+e^(-z) ) 注意这几件事 如果z非常大 e^(-z)就会接近0 所以sigmoid(z)就大约等于 1 / (1+ 一个接近0的数字) 因为 e^(很大的数的相反数) 会非常接近0 因此这项会接近1 事实上 如果你看左边的图 如果z非常大 那么sigmoid(z)非常接近1 相反地 如果z非常小 或者他是一个非常大的负值 sigmoid(z)会变成(1+ e^(-z) ) 这项会变成很大的数 而这一项 思考一下 1/(1+ 很大的数) 而这一项 思考一下 1/(1+ 很大的数) sigmoid(z) 就会接近0 因此 当z变成一个很大的负数 sigmoid(z)的值就会非常接近0 因此当你实现逻辑回归时 你的目标是尽力学习到参数w和b 因此yhat就能很好地估计y等于1的概率。
+
+损失函数计算单个训练样本的误差；成本函数是整个训练集损失函数的平均值。
+
+链式法则
+链式法则是微积分中的求导法则，用于求一个复合函数的导数。复合函数的导数将是构成复合这有限个函数在相应点的导数的乘积，就像锁链一样一环套一环，故称链式法则。
+
+交叉验证
+交叉验证是一种评估机器学习模型并测试其性能的技术。
+有许多不同的技术可用于交叉验证模型。尽管如此，它们都有相似的算法： 
+将数据集分为两部分：一部分用于训练，另一部分用于测试 
+在训练集上训练模型 
+在测试集上验证模型 
+重复 1-3 步骤几次。该数字取决于您使用的 CV 方法
+
+Hold-out
+K-folds
+Leave-one-out
+Leave-p-out
+Stratified K-folds
+Repeated K-folds
+Nested K-folds
+Time series CV
+
+
+数据增强（Data augmentation）
+数据增强是一种通过从现有数据创建修改数据来人为扩展训练集大小的技术。如果您想防止过度拟合，或者初始数据集太小而无法进行训练，或者即使您想从模型中获得更好的性能，那么使用 DA 是一个很好的做法。
+数据增强不仅用于防止过度拟合。一般来说，拥有大型数据集对于 ML 和深度学习 (DL) 模型的性能至关重要。然而，我们可以通过增加已有的数据来提高模型的性能。这意味着数据增强也有利于提高模型的性能。

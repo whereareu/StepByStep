@@ -18,7 +18,7 @@ Element 的 mount 方法好像需要定位自己的位置：
 这些关系的具体实现方法是在Element的inflateWidget方法内，通过调用Widget.createElement 和 Element.mount方法实现。
 Widget和element的关系就好像是预定论中的概念。Element创建之前就被widgets设定的内容和位置确定了，之后再根据 widget 创建 element，widget本身是不可变的（Immutable注解 [该类的所有实例字段，无论直接定义或继承，都是final），但是element是可变的（私有变量_child|parent|_widget可以被替换），element持有widget的引用.
 ComponentElement每颗树上的节点是通过递归调用ComponentElement的performRebuild
-的方法实现。这包括调用Element.build方法创建Widget和Element的updateChild方法创建element并mounted。
+的方法实现。这包括调用Element.build方法创建Widget，Element的updateChild方法创建element并mounted。
 
 setState 方法会调用Element.markNeedsBuild方法将当前Element标记为脏并将其加入到Widget的全局列表中（BuildOwner的_dirtyElement集合），等待engine生成新帧时重建elements树。当elements树重建完成以后，泵送rendering pipeline 生成帧. 
 具体方法执行是在执行Persistent callbacks 时，调用WidgetBing的drawFrame方法，先后执行        buildOwner!.buildScope(renderViewElement!);

@@ -1,0 +1,61 @@
+突变是编程中常见的副作用。突变是指定义变量后改变其值。
+
+ViewModel 的 onClear() 方法在 Activity 的 super.onDestroy() 方法执行之前执行
+因此可以把驱动UI的 Flow 订阅放到 viewModelScope 作用域中，UI的Action行为订阅放到 lifecycleScope 作用域中。
+ 
+viewModelScope 和 lifecycleScope 两个协程作用域都绑定到的协程调度器都是 Dispatchers.Main.immediate，它是在主线程上运行的
+
+StateFlow will collect the last value when collection begins
+SharedFlow will not collect the last value when collection begins
+CallbackFlow will not even allow the emit to begin before the collection
+
+StateFlow will filter away the same consecutive value from being collected
+SharedFlow and CallbackFlow will always collect any value emitted
+
+For StateFlow and SharedFlow, the number of collections for each emit as per the number of collections started.
+For CallbackFlow, the collection will only be one, regardless of how many times it started.
+
+For StateFlow and SharedFlow, each of the coroutine launches collects has to be individually cancelled to ensure all collection is cancelled
+For CallbackFlow, as long as any one of the coroutine scope cancellations is triggered, the single collection will be cancelled. Not only it doesn’t collect, it does emit as well.
+
+
+CallbackFlow can send data from a non-coroutine non-suspend function. StateFlow and SharedFlow need to emit from a coroutine suspend function
+CallbackFlow has a convenient (compulsory) function for cleanup upon closure i.e. awaitClose {...}. We’ll have to handle that manually for StateFlow and SharedFlow if there’s any clean-up needed.
+
+We can keep the flow alive
+The good news is, in Channel Flow, we have awaitClose() function.
+The awaitFlow() function is optional for channelFlow. If we are sure we want our flow to keep alive for further data sent through it, the better function to use is callbackFlow, as it enforces the use of awaitClose(). Not putting awaitClose() for callbackFlow will cause the below crash during runtime.
+
+Sending data from outside the lambda
+1、Unblocking the awaiting process
+2、Add a little delay.
+3、Closing the channel
+
+Mvi Flow
+
+In View
+
+Start: actions()
+End: render()
+Start + End = View
+
+
+In Mvi
+
+Action
+(emit)
+
+(collect)
+Mutation
+(emit)
+
+(collect)
+Reducer
+(emit)
+
+(collect)
+State
+
+
+
+
